@@ -56,7 +56,6 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
     .order('start_time', { ascending: true })
 
   const days = daysBetween(trip.start_date, trip.end_date)
-
   const totalSpent = activities?.reduce((sum, a) => sum + (a.price ?? 0), 0) ?? 0
 
   return (
@@ -130,7 +129,7 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
               )}
             </h2>
             <Link
-              href={`/trips/${id}/activities/new`}
+              href={`/trips/${id}/activities/extract`}
               className="bg-white text-black text-sm font-semibold px-4 py-2 rounded-xl hover:bg-white/90 transition"
             >
               + Add activity
@@ -140,10 +139,7 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
           {activities && activities.length > 0 ? (
             <div className="space-y-3">
               {activities.map(activity => (
-                <div
-                  key={activity.id}
-                  className="bg-white/5 border border-white/8 rounded-2xl p-5"
-                >
+                <div key={activity.id} className="bg-white/5 border border-white/8 rounded-2xl p-5">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
                       <span className="text-2xl">{TYPE_ICONS[activity.type] ?? '📌'}</span>
@@ -190,13 +186,13 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
               <p className="text-4xl mb-4">🗺️</p>
               <h3 className="text-lg font-semibold mb-2">No activities yet</h3>
               <p className="text-white/40 text-sm mb-6">
-                Add flights, hotels, tours and more to build your itinerary.
+                Upload a confirmation screenshot to add your first activity.
               </p>
               <Link
-                href={`/trips/${id}/activities/new`}
+                href={`/trips/${id}/activities/extract`}
                 className="bg-white text-black text-sm font-semibold px-6 py-3 rounded-xl hover:bg-white/90 transition inline-block"
               >
-                + Add your first activity
+                📸 Scan confirmation
               </Link>
             </div>
           )}
