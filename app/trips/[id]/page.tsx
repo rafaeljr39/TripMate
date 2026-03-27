@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import CopyInviteButton from '@/components/copy-invite-button'
+import TripTimeline from '@/components/trip-timeline'
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return null
@@ -13,20 +14,10 @@ function formatBudget(amount: number | null, currency: string) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount)
 }
 
-function formatDateTime(dateStr: string | null) {
-  if (!dateStr) return null
-  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-}
-
 function daysBetween(start: string | null, end: string | null) {
   if (!start || !end) return null
   const diff = new Date(end).getTime() - new Date(start).getTime()
   return Math.ceil(diff / (1000 * 60 * 60 * 24))
-}
-
-const TYPE_ICONS: Record<string, string> = {
-  flight: '✈️', hotel: '🏨', tour: '🗺️',
-  restaurant: '🍽️', transport: '🚌', activity: '🎯', other: '📌',
 }
 
 export default async function TripDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -84,7 +75,6 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
             <h1 className="text-4xl font-bold tracking-tight">{trip.name}</h1>
             <div className="flex items-center gap-2">
               <CopyInviteButton inviteUrl={inviteUrl} compact />
-              {/* Avatars */}
               <div className="flex items-center">
                 <div
                   style={{ background: '#C4552A' }}
@@ -149,90 +139,9 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
           )}
         </div>
 
-        {/* Activities */}
-        <div>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">
-              Activities {activities && activities.length > 0 && (
-                <span className="text-white/30 font-normal text-base ml-2">{activities.length}</span>
-              )}
-            </h2>
-            <Link
-              href={`/trips/${id}/activities/extract`}
-              className="bg-white text-black text-sm font-semibold px-4 py-2 rounded-xl hover:bg-white/90 transition"
-            >
-              + Add activity
-            </Link>
-          </div>
+        {/* Timeline Component */}
+        <TripTimeline activities={activities ?? []} tripId={id} />
 
-          {activities && activities.length > 0 ? (
-            <div className="space-y-3">
-              {activities.map(activity => (
-                <div key={activity.id} className="bg-white/5 border border-white/8 rounded-2xl p-5">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      <span className="text-2xl">{TYPE_ICONS[activity.type] ?? '📌'}</span>
-                      <div>
-                        <h3 className="font-semibold">{activity.title}</h3>
-                        {activity.location && (
-                          <p className="text-white/50 text-sm">📍 {activity.location}</p>
-                        )}
-                        {activity.start_time && (
-                          <p className="text-white/40 text-xs mt-1">
-                            {formatDateTime(activity.start_time)}
-                            {activity.end_time && ` → ${formatDateTime(activity.end_time)}`}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <div className="text-right mr-1">
-                        {activity.price && (
-                          <p className="text-sm font-semibold">
-                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: activity.currency }).format(activity.price)}
-                          </p>
-                        )}
-                        {activity.confirmation_code && (
-                          <p className="text-white/30 text-xs mt-1">#{activity.confirmation_code}</p>
-                        )}
-                      </div>
-                      <Link
-                        href={`/share/${activity.id}`}
-                        className="text-white/30 hover:text-white text-xs border border-white/10 rounded-lg px-2.5 py-1.5 transition"
-                        target="_blank"
-                      >
-                        Share
-                      </Link>
-                      <Link
-                        href={`/trips/${id}/activities/${activity.id}/edit`}
-                        className="text-white/30 hover:text-white text-xs border border-white/10 rounded-lg px-2.5 py-1.5 transition"
-                      >
-                        Edit
-                      </Link>
-                    </div>
-                  </div>
-                  {activity.notes && (
-                    <p className="text-white/30 text-sm mt-3 ml-9">{activity.notes}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="border border-dashed border-white/10 rounded-2xl p-16 text-center">
-              <p className="text-4xl mb-4">🗺️</p>
-              <h3 className="text-lg font-semibold mb-2">No activities yet</h3>
-              <p className="text-white/40 text-sm mb-6">
-                Upload a confirmation screenshot to add your first activity.
-              </p>
-              <Link
-                href={`/trips/${id}/activities/extract`}
-                className="bg-white text-black text-sm font-semibold px-6 py-3 rounded-xl hover:bg-white/90 transition inline-block"
-              >
-                📸 Scan confirmation
-              </Link>
-            </div>
-          )}
-        </div>
       </div>
     </main>
   )
