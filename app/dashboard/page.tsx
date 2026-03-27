@@ -65,9 +65,10 @@ export default async function DashboardPage() {
         {trips && trips.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {trips.map(trip => (
-              <div
+              <Link
                 key={trip.id}
-                className="bg-white/5 border border-white/8 rounded-2xl p-5 hover:bg-white/8 transition cursor-pointer group"
+                href={`/trips/${trip.id}`}
+                className="bg-white/5 border border-white/8 rounded-2xl p-5 hover:bg-white/8 transition cursor-pointer group block"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -96,7 +97,7 @@ export default async function DashboardPage() {
                 {trip.notes && (
                   <p className="text-white/30 text-sm mt-3 line-clamp-2">{trip.notes}</p>
                 )}
-              </div>
+              </Link>
             ))}
           </div>
         ) : (
