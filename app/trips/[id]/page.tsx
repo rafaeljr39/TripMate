@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import CopyInviteButton from '@/components/copy-invite-button'
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return null
@@ -24,13 +25,8 @@ function daysBetween(start: string | null, end: string | null) {
 }
 
 const TYPE_ICONS: Record<string, string> = {
-  flight: '✈️',
-  hotel: '🏨',
-  tour: '🗺️',
-  restaurant: '🍽️',
-  transport: '🚌',
-  activity: '🎯',
-  other: '📌',
+  flight: '✈️', hotel: '🏨', tour: '🗺️',
+  restaurant: '🍽️', transport: '🚌', activity: '🎯', other: '📌',
 }
 
 export default async function TripDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -55,8 +51,18 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
     .eq('trip_id', id)
     .order('start_time', { ascending: true })
 
+  const { data: members } = await supabase
+    .from('trip_members')
+    .select('*')
+    .eq('trip_id', id)
+
   const days = daysBetween(trip.start_date, trip.end_date)
   const totalSpent = activities?.reduce((sum, a) => sum + (a.price ?? 0), 0) ?? 0
+  const inviteUrl = `https://trip-mate-delta.vercel.app/invite/${trip.invite_token}`
+
+  const initials = user.user_metadata?.full_name
+    ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+    : user.email?.[0].toUpperCase() ?? '?'
 
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
@@ -66,16 +72,38 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
         </Link>
         <span className="font-bold text-lg tracking-tight">TripMate</span>
         <Link href={`/trips/${id}/edit`} className="text-sm text-white/40 hover:text-white transition">
-          Edit trip
+          Edit
         </Link>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 py-12">
+
+        {/* Trip Header */}
         <div className="mb-10">
-          <h1 className="text-4xl font-bold tracking-tight mb-2">{trip.name}</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold tracking-tight">{trip.name}</h1>
+            <div className="flex items-center gap-2">
+              <CopyInviteButton inviteUrl={inviteUrl} compact />
+              {/* Avatars */}
+              <div className="flex items-center">
+                <div
+                  style={{ background: '#C4552A' }}
+                  className="w-7 h-7 rounded-full border-2 border-[#0f0f0f] flex items-center justify-center text-xs font-bold text-white"
+                >
+                  {initials}
+                </div>
+                {members && members.length > 0 && (
+                  <div className="w-7 h-7 rounded-full border-2 border-[#0f0f0f] bg-white/20 flex items-center justify-center text-xs font-bold text-white -ml-2">
+                    +{members.length}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
           <p className="text-white/50 text-lg">📍 {trip.destination}</p>
         </div>
 
+        {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-12">
           {trip.start_date && (
             <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
@@ -121,6 +149,7 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
           )}
         </div>
 
+        {/* Activities */}
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold">
