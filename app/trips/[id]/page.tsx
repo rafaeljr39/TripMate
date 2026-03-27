@@ -156,8 +156,8 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
                         )}
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="text-right">
+                    <div className="flex items-start gap-2">
+                      <div className="text-right mr-1">
                         {activity.price && (
                           <p className="text-sm font-semibold">
                             {new Intl.NumberFormat('en-US', { style: 'currency', currency: activity.currency }).format(activity.price)}
@@ -167,6 +167,13 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
                           <p className="text-white/30 text-xs mt-1">#{activity.confirmation_code}</p>
                         )}
                       </div>
+                      <Link
+                        href={`/share/${activity.id}`}
+                        className="text-white/30 hover:text-white text-xs border border-white/10 rounded-lg px-2.5 py-1.5 transition"
+                        target="_blank"
+                      >
+                        Share
+                      </Link>
                       <Link
                         href={`/trips/${id}/activities/${activity.id}/edit`}
                         className="text-white/30 hover:text-white text-xs border border-white/10 rounded-lg px-2.5 py-1.5 transition"
