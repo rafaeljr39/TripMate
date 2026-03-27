@@ -43,7 +43,12 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
           ← Back to trips
         </Link>
         <span className="font-bold text-lg tracking-tight">TripMate</span>
-        <div className="w-24" />
+        <Link
+          href={`/trips/${id}/edit`}
+          className="text-sm text-white/40 hover:text-white transition"
+        >
+          Edit trip
+        </Link>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 py-12">
