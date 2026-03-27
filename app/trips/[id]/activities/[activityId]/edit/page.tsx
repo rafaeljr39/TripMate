@@ -4,58 +4,71 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
+const ACTIVITY_TYPES = [
+  { value: 'flight', label: '✈️ Flight' },
+  { value: 'hotel', label: '🏨 Hotel' },
+  { value: 'tour', label: '🗺️ Tour' },
+  { value: 'restaurant', label: '🍽️ Restaurant' },
+  { value: 'transport', label: '🚌 Transport' },
+  { value: 'activity', label: '🎯 Activity' },
+  { value: 'other', label: '📌 Other' },
+]
+
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'MXN']
 
-export default function EditTripPage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditActivityPage({ params }: { params: Promise<{ id: string, activityId: string }> }) {
   const router = useRouter()
   const supabase = createClient()
-
+  const [tripId, setTripId] = useState<string | null>(null)
+  const [activityId, setActivityId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [tripId, setTripId] = useState<string | null>(null)
   const [form, setForm] = useState({
-    name: '',
-    destination: '',
-    start_date: '',
-    end_date: '',
-    travelers: 1,
-    budget: '',
-    budget_currency: 'USD',
+    type: 'other',
+    title: '',
+    location: '',
+    start_time: '',
+    end_time: '',
+    confirmation_code: '',
     notes: '',
+    price: '',
+    currency: 'USD',
   })
 
   useEffect(() => {
-    async function loadTrip() {
-      const { id } = await params
+    async function load() {
+      const { id, activityId } = await params
       setTripId(id)
+      setActivityId(activityId)
 
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/'); return }
 
-      const { data: trip } = await supabase
-        .from('trips')
+      const { data: activity } = await supabase
+        .from('activities')
         .select('*')
-        .eq('id', id)
+        .eq('id', activityId)
         .eq('user_id', user.id)
         .single()
 
-      if (!trip) { router.push('/dashboard'); return }
+      if (!activity) { router.push(`/trips/${id}`); return }
 
       setForm({
-        name: trip.name,
-        destination: trip.destination,
-        start_date: trip.start_date ?? '',
-        end_date: trip.end_date ?? '',
-        travelers: trip.travelers,
-        budget: trip.budget ?? '',
-        budget_currency: trip.budget_currency ?? 'USD',
-        notes: trip.notes ?? '',
+        type: activity.type,
+        title: activity.title,
+        location: activity.location ?? '',
+        start_time: activity.start_time ? new Date(activity.start_time).toISOString().slice(0, 16) : '',
+        end_time: activity.end_time ? new Date(activity.end_time).toISOString().slice(0, 16) : '',
+        confirmation_code: activity.confirmation_code ?? '',
+        notes: activity.notes ?? '',
+        price: activity.price ?? '',
+        currency: activity.currency ?? 'USD',
       })
       setLoading(false)
     }
-    loadTrip()
+    load()
   }, [])
 
   function handleChange(
@@ -70,18 +83,19 @@ export default function EditTripPage({ params }: { params: Promise<{ id: string 
     setError(null)
 
     const { error: updateError } = await supabase
-      .from('trips')
+      .from('activities')
       .update({
-        name: form.name,
-        destination: form.destination,
-        start_date: form.start_date || null,
-        end_date: form.end_date || null,
-        travelers: Number(form.travelers),
-        budget: form.budget ? Number(form.budget) : null,
-        budget_currency: form.budget_currency,
+        type: form.type,
+        title: form.title,
+        location: form.location || null,
+        start_time: form.start_time || null,
+        end_time: form.end_time || null,
+        confirmation_code: form.confirmation_code || null,
         notes: form.notes || null,
+        price: form.price ? Number(form.price) : null,
+        currency: form.currency,
       })
-      .eq('id', tripId)
+      .eq('id', activityId)
 
     if (updateError) {
       setError(updateError.message)
@@ -93,17 +107,17 @@ export default function EditTripPage({ params }: { params: Promise<{ id: string 
   }
 
   async function handleDelete() {
-    if (!confirm('Delete this trip and all its activities? This cannot be undone.')) return
+    if (!confirm('Delete this activity? This cannot be undone.')) return
     setDeleting(true)
 
-    await supabase.from('trips').delete().eq('id', tripId)
-    router.push('/dashboard')
+    await supabase.from('activities').delete().eq('id', activityId)
+    router.push(`/trips/${tripId}`)
   }
 
   if (loading) {
     return (
       <main className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center">
-        <p className="text-white/40">Loading trip...</p>
+        <p className="text-white/40">Loading activity...</p>
       </main>
     )
   }
@@ -113,18 +127,31 @@ export default function EditTripPage({ params }: { params: Promise<{ id: string 
       <div className="w-full max-w-xl">
         <div className="mb-10">
           <a href={`/trips/${tripId}`} className="text-sm text-white/40 hover:text-white/70 transition mb-6 inline-block">
-            ← Back
+            ← Back to trip
           </a>
-          <h1 className="text-4xl font-bold tracking-tight">Edit trip</h1>
-          <p className="text-white/50 mt-2">Update your trip details.</p>
+          <h1 className="text-4xl font-bold tracking-tight">Edit activity</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-white/70">Trip name</label>
+            <label className="text-sm font-medium text-white/70">Type</label>
+            <select
+              name="type"
+              value={form.type}
+              onChange={handleChange}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/30 transition"
+            >
+              {ACTIVITY_TYPES.map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-white/70">Title</label>
             <input
-              name="name"
-              value={form.name}
+              name="title"
+              value={form.title}
               onChange={handleChange}
               required
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/25 focus:outline-none focus:border-white/30 transition"
@@ -132,33 +159,32 @@ export default function EditTripPage({ params }: { params: Promise<{ id: string 
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-white/70">Destination</label>
+            <label className="text-sm font-medium text-white/70">Location <span className="text-white/30">(optional)</span></label>
             <input
-              name="destination"
-              value={form.destination}
+              name="location"
+              value={form.location}
               onChange={handleChange}
-              required
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/25 focus:outline-none focus:border-white/30 transition"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-white/70">Start date</label>
+              <label className="text-sm font-medium text-white/70">Start time <span className="text-white/30">(optional)</span></label>
               <input
-                type="date"
-                name="start_date"
-                value={form.start_date}
+                type="datetime-local"
+                name="start_time"
+                value={form.start_time}
                 onChange={handleChange}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/30 transition [color-scheme:dark]"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-white/70">End date</label>
+              <label className="text-sm font-medium text-white/70">End time <span className="text-white/30">(optional)</span></label>
               <input
-                type="date"
-                name="end_date"
-                value={form.end_date}
+                type="datetime-local"
+                name="end_time"
+                value={form.end_time}
                 onChange={handleChange}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/30 transition [color-scheme:dark]"
               />
@@ -166,24 +192,21 @@ export default function EditTripPage({ params }: { params: Promise<{ id: string 
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-white/70">Number of travelers</label>
+            <label className="text-sm font-medium text-white/70">Confirmation code <span className="text-white/30">(optional)</span></label>
             <input
-              type="number"
-              name="travelers"
-              value={form.travelers}
+              name="confirmation_code"
+              value={form.confirmation_code}
               onChange={handleChange}
-              min={1}
-              max={50}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/30 transition"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/25 focus:outline-none focus:border-white/30 transition"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-white/70">Total budget <span className="text-white/30">(optional)</span></label>
+            <label className="text-sm font-medium text-white/70">Price <span className="text-white/30">(optional)</span></label>
             <div className="flex gap-3">
               <select
-                name="budget_currency"
-                value={form.budget_currency}
+                name="currency"
+                value={form.currency}
                 onChange={handleChange}
                 className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-white/30 transition"
               >
@@ -193,8 +216,8 @@ export default function EditTripPage({ params }: { params: Promise<{ id: string 
               </select>
               <input
                 type="number"
-                name="budget"
-                value={form.budget}
+                name="price"
+                value={form.price}
                 onChange={handleChange}
                 min={0}
                 placeholder="0.00"
@@ -234,7 +257,7 @@ export default function EditTripPage({ params }: { params: Promise<{ id: string 
             disabled={deleting}
             className="w-full bg-red-500/10 text-red-400 border border-red-500/20 font-semibold py-3.5 rounded-xl hover:bg-red-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {deleting ? 'Deleting...' : 'Delete trip'}
+            {deleting ? 'Deleting...' : 'Delete activity'}
           </button>
         </form>
       </div>

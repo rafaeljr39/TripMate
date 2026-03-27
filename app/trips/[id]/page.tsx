@@ -57,6 +57,8 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
 
   const days = daysBetween(trip.start_date, trip.end_date)
 
+  const totalSpent = activities?.reduce((sum, a) => sum + (a.price ?? 0), 0) ?? 0
+
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
       <nav className="border-b border-white/8 px-6 py-4 flex items-center justify-between">
@@ -104,6 +106,14 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
               <p className="font-semibold text-sm">{formatBudget(trip.budget, trip.budget_currency)}</p>
             </div>
           )}
+          {trip.budget && totalSpent > 0 && (
+            <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
+              <p className="text-white/40 text-xs mb-1">Spent</p>
+              <p className={`font-semibold text-sm ${totalSpent > trip.budget ? 'text-red-400' : 'text-green-400'}`}>
+                {formatBudget(totalSpent, trip.budget_currency)}
+              </p>
+            </div>
+          )}
           {trip.notes && (
             <div className="bg-white/5 border border-white/8 rounded-2xl p-4 col-span-2">
               <p className="text-white/40 text-xs mb-1">Notes</p>
@@ -114,7 +124,11 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
 
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">Activities</h2>
+            <h2 className="text-xl font-bold">
+              Activities {activities && activities.length > 0 && (
+                <span className="text-white/30 font-normal text-base ml-2">{activities.length}</span>
+              )}
+            </h2>
             <Link
               href={`/trips/${id}/activities/new`}
               className="bg-white text-black text-sm font-semibold px-4 py-2 rounded-xl hover:bg-white/90 transition"
@@ -146,15 +160,23 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
                         )}
                       </div>
                     </div>
-                    <div className="text-right">
-                      {activity.price && (
-                        <p className="text-sm font-semibold">
-                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: activity.currency }).format(activity.price)}
-                        </p>
-                      )}
-                      {activity.confirmation_code && (
-                        <p className="text-white/30 text-xs mt-1">#{activity.confirmation_code}</p>
-                      )}
+                    <div className="flex items-start gap-3">
+                      <div className="text-right">
+                        {activity.price && (
+                          <p className="text-sm font-semibold">
+                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: activity.currency }).format(activity.price)}
+                          </p>
+                        )}
+                        {activity.confirmation_code && (
+                          <p className="text-white/30 text-xs mt-1">#{activity.confirmation_code}</p>
+                        )}
+                      </div>
+                      <Link
+                        href={`/trips/${id}/activities/${activity.id}/edit`}
+                        className="text-white/30 hover:text-white text-xs border border-white/10 rounded-lg px-2.5 py-1.5 transition"
+                      >
+                        Edit
+                      </Link>
                     </div>
                   </div>
                   {activity.notes && (
