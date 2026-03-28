@@ -389,9 +389,7 @@ export default function TripDetailClient({
                                 <div style={{ flex: 1 }}>
                                   <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.85rem', color: 'var(--ink)' }}>
                                     {a.title}
-                                    {a.confirmation_code && (
-                
-                                    )}
+        
                                   </p>
                                   {a.location && <p style={{ fontSize: '0.72rem', opacity: 0.6, marginTop: '2px' }}>{a.location}</p>}
                                   {a.notes && <p style={{ fontSize: '0.72rem', opacity: 0.6, marginTop: '2px' }}>{a.notes}</p>}
