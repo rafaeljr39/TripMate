@@ -566,7 +566,7 @@ function ActivityFormFields({ form, handleChange }: { form: any, handleChange: a
             {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <input type="number" name="price" value={form.price} onChange={handleChange}
-            min={0} placeholder="0.00"
+            min={0} step="0.01" placeholder="0.00"
             style={{ ...inputS, flex: 1 }} onFocus={focus} onBlur={blur} />
         </div>
       </div>

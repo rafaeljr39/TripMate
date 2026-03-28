@@ -257,7 +257,7 @@ export default function EditActivityPage({ params }: { params: Promise<{ id: str
                   {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <input type="number" name="price" value={form.price} onChange={handleChange}
-                  min={0} placeholder="0.00"
+                  min={0} step="0.01" placeholder="0.00"
                   style={{ ...inputStyle, flex: 1 }} onFocus={focus} onBlur={blur} />
               </div>
             </div>

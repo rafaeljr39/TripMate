@@ -130,7 +130,7 @@ export default function NewActivityPage({ params }: { params: Promise<{ id: stri
                 <select name="currency" value={form.currency} onChange={handleChange} style={{ ...inputStyle, width: 'auto' }} onFocus={focus} onBlur={blur}>
                   {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
-                <input type="number" name="price" value={form.price} onChange={handleChange} min={0} placeholder="0.00" style={{ ...inputStyle, flex: 1 }} onFocus={focus} onBlur={blur} />
+                <input type="number" name="price" value={form.price} onChange={handleChange} min={0} step="0.01" placeholder="0.00" style={{ ...inputStyle, flex: 1 }} onFocus={focus} onBlur={blur} />
               </div>
             </div>
             <div>

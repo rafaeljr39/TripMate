@@ -621,9 +621,6 @@ function ActivityCard({ activity, tripId, showTime }: { activity: any, tripId: s
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: '0.86rem', color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {activity.title}
-          {activity.confirmation_code && (
-            <span style={{ fontSize: '0.6rem', fontWeight: 700, background: 'var(--sage-bg)', color: 'var(--sage)', padding: '1px 6px', borderRadius: '99px', marginLeft: '6px' }}>Confirmed</span>
-          )}
         </p>
         <p style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', opacity: 0.6, marginTop: '2px' }}>
           {activity.location ?? ''}
