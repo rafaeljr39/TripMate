@@ -34,6 +34,7 @@ export default async function DashboardPage() {
   const { data: trips } = await supabase
     .from('trips')
     .select('*')
+    .eq('user_id', user.id) 
     .order('created_at', { ascending: false })
 
   const firstName = user.user_metadata?.full_name?.split(' ')[0] ?? 'Traveler'
