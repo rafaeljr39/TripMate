@@ -18,16 +18,9 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
     async function load() {
       const { token } = await params
       setToken(token)
-
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
-
-      const { data: trip } = await supabase
-        .from('trips')
-        .select('*')
-        .eq('invite_token', token)
-        .single()
-
+      const { data: trip } = await supabase.from('trips').select('*').eq('invite_token', token).single()
       setTrip(trip)
       setLoading(false)
     }
@@ -36,57 +29,14 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
 
   async function handleJoin() {
     if (!user) {
-      await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/invite/${token}`,
-        },
-      })
+      await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/invite/${token}` } })
       return
     }
-
     setJoining(true)
     setError(null)
-
-    const { error: insertError } = await supabase
-      .from('trip_members')
-      .insert({
-        trip_id: trip.id,
-        user_id: user.id,
-        invited_by: trip.user_id,
-        role: 'member',
-      })
-
-    if (insertError && !insertError.message.includes('duplicate')) {
-      setError(insertError.message)
-      setJoining(false)
-      return
-    }
-
+    const { error: insertError } = await supabase.from('trip_members').insert({ trip_id: trip.id, user_id: user.id, invited_by: trip.user_id, role: 'member' })
+    if (insertError && !insertError.message.includes('duplicate')) { setError(insertError.message); setJoining(false); return }
     router.push(`/trips/${trip.id}`)
-  }
-
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-[#0f0f0f] flex items-center justify-center">
-        <p className="text-white/30">Loading invite...</p>
-      </main>
-    )
-  }
-
-  if (!trip) {
-    return (
-      <main className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center px-4">
-        <div className="text-center max-w-sm mx-auto">
-          <p className="text-5xl mb-4">🔍</p>
-          <h1 className="text-2xl font-bold mb-2">Invite not found</h1>
-          <p className="text-white/40 mb-6">This invite link may have expired or been removed.</p>
-          <a href="/" className="bg-white text-black font-semibold px-6 py-3 rounded-xl hover:bg-white/90 transition inline-block">
-            Go to TripMate
-          </a>
-        </div>
-      </main>
-    )
   }
 
   function formatDate(dateStr: string | null) {
@@ -94,45 +44,70 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
     return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
+  if (loading) {
+    return (
+      <main style={{ minHeight: '100vh', background: 'var(--sand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: 'var(--ink-muted)', fontFamily: 'Syne, sans-serif' }}>Loading invite...</p>
+      </main>
+    )
+  }
+
+  if (!trip) {
+    return (
+      <main style={{ minHeight: '100vh', background: 'var(--sand)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+        <div style={{ textAlign: 'center', maxWidth: '360px' }}>
+          <p style={{ fontSize: '3rem', marginBottom: '16px' }}>🔍</p>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.5rem', color: 'var(--ink)', marginBottom: '8px' }}>Invite not found</h1>
+          <p style={{ color: 'var(--ink-muted)', marginBottom: '24px' }}>This invite link may have expired or been removed.</p>
+          <a href="/" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, background: 'var(--terracotta)', color: 'var(--white)', padding: '12px 28px', borderRadius: '999px', textDecoration: 'none' }}>
+            Go to TripMate
+          </a>
+        </div>
+      </main>
+    )
+  }
+
   return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white flex flex-col items-center justify-center px-4 py-12">
-      <div style={{ maxWidth: '400px', width: '100%', margin: '0 auto' }}>
+    <main style={{ minHeight: '100vh', background: 'var(--sand)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+
+      <div style={{ maxWidth: '400px', width: '100%' }}>
 
         {/* Brand */}
-        <div className="text-center mb-8">
-          <p className="text-white/30 text-xs font-medium tracking-widest uppercase mb-1">You're invited</p>
-          <p className="font-bold text-lg">TripMate ✈️</p>
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <p style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-muted)', marginBottom: '6px' }}>You're invited</p>
+          <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em' }}>
+            Trip<span style={{ color: 'var(--ink)' }}>Mate</span>
+          </p>
         </div>
 
-        {/* Trip Card */}
-        <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', marginBottom: '16px' }}>
-          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-            <p className="text-white/40 text-xs uppercase tracking-wider mb-1">Trip</p>
-            <h1 className="text-2xl font-bold">{trip.name}</h1>
-            <p className="text-white/50 text-sm mt-1">📍 {trip.destination}</p>
+        {/* Trip card */}
+        <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '20px', overflow: 'hidden', marginBottom: '14px', boxShadow: '0 2px 16px rgba(26,23,20,0.08)' }}>
+          <div style={{ background: 'var(--ink)', color: 'var(--sand)', padding: '20px 24px' }}>
+            <p style={{ fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.5, marginBottom: '6px' }}>Trip</p>
+            <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.6rem', letterSpacing: '-0.03em' }}>{trip.name}</h1>
+            <p style={{ fontSize: '0.85rem', opacity: 0.6, marginTop: '4px' }}>📍 {trip.destination}</p>
           </div>
-
-          <div style={{ padding: '20px 24px' }} className="space-y-3">
+          <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {trip.start_date && (
-              <div className="flex justify-between items-start gap-4">
-                <span className="text-white/30 text-sm shrink-0">Departure</span>
-                <span className="text-white text-sm font-medium">{formatDate(trip.start_date)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.82rem', color: 'var(--ink-muted)' }}>Departure</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ink)' }}>{formatDate(trip.start_date)}</span>
               </div>
             )}
             {trip.end_date && (
-              <div className="flex justify-between items-start gap-4">
-                <span className="text-white/30 text-sm shrink-0">Return</span>
-                <span className="text-white text-sm font-medium">{formatDate(trip.end_date)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.82rem', color: 'var(--ink-muted)' }}>Return</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ink)' }}>{formatDate(trip.end_date)}</span>
               </div>
             )}
-            <div className="flex justify-between items-start gap-4">
-              <span className="text-white/30 text-sm shrink-0">Travelers</span>
-              <span className="text-white text-sm font-medium">{trip.travelers} {trip.travelers === 1 ? 'person' : 'people'}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.82rem', color: 'var(--ink-muted)' }}>Travelers</span>
+              <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ink)' }}>{trip.travelers} {trip.travelers === 1 ? 'person' : 'people'}</span>
             </div>
             {trip.budget && (
-              <div className="flex justify-between items-start gap-4">
-                <span className="text-white/30 text-sm shrink-0">Budget</span>
-                <span className="text-white text-sm font-medium">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.82rem', color: 'var(--ink-muted)' }}>Budget</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ink)' }}>
                   {new Intl.NumberFormat('en-US', { style: 'currency', currency: trip.budget_currency }).format(trip.budget)}
                 </span>
               </div>
@@ -141,22 +116,17 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
         </div>
 
         {error && (
-          <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-3 mb-4">
+          <div style={{ background: 'var(--terra-bg)', border: '1px solid var(--terracotta)', borderRadius: '12px', padding: '12px 16px', fontSize: '0.85rem', color: 'var(--terracotta)', marginBottom: '12px' }}>
             {error}
-          </p>
+          </div>
         )}
 
-        <button
-          onClick={handleJoin}
-          disabled={joining}
-          style={{ width: '100%', background: 'white', color: 'black', borderRadius: '16px', padding: '14px', border: 'none', cursor: 'pointer', marginBottom: '12px' }}
-          className="font-semibold text-sm hover:opacity-90 transition disabled:opacity-50"
-        >
+        <button onClick={handleJoin} disabled={joining} style={{ width: '100%', background: joining ? 'var(--ink-muted)' : 'var(--terracotta)', color: 'var(--white)', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.95rem', padding: '14px', borderRadius: '14px', border: 'none', cursor: joining ? 'not-allowed' : 'pointer', marginBottom: '12px', transition: 'all .2s' }}>
           {joining ? 'Joining...' : user ? '✈️ Join this trip' : '✈️ Sign in to join'}
         </button>
 
-        <p className="text-white/20 text-xs text-center">
-          {user ? `Signing in as ${user.email}` : 'You\'ll be asked to sign in with Google'}
+        <p style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', textAlign: 'center', opacity: 0.6 }}>
+          {user ? `Signing in as ${user.email}` : "You'll be asked to sign in with Google"}
         </p>
       </div>
     </main>
