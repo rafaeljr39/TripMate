@@ -2,21 +2,21 @@
 
 import { useState } from 'react'
 
-const TYPE_ICONS = {
+const TYPE_ICONS: Record<string, string> = {
   flight: '✈️', hotel: '🏨', tour: '🗺️',
   restaurant: '🍽️', transport: '🚌', activity: '🎯', other: '📌',
 }
 
-function formatTime(dateStr) {
+function formatTime(dateStr: string) {
   if (!dateStr) return null
   return new Date(dateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 }
 
-function formatDayHeader(dateStr) {
+function formatDayHeader(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 }
 
-function ActivityCard({ activity, tripId, showTime }) {
+function ActivityCard({ activity, tripId, showTime }: { activity: any, tripId: any, showTime?: boolean }) {
   const shareHref = '/share/' + activity.id
   const editHref = '/trips/' + tripId + '/activities/' + activity.id + '/edit'
   const icon = TYPE_ICONS[activity.type] || '📌'
@@ -47,13 +47,13 @@ function ActivityCard({ activity, tripId, showTime }) {
   )
 }
 
-export default function TripTimeline({ activities, tripId }) {
+export default function TripTimeline({ activities, tripId }: { activities: any[], tripId: any }) {
   const [view, setView] = useState('list')
 
-  const grouped = {}
-  const noDate = []
+  const grouped: Record<string, any[]> = {}
+  const noDate: any[] = []
 
-  activities.forEach((activity) => {
+  activities.forEach((activity: any) => {
     if (activity.start_time) {
       const day = activity.start_time.split('T')[0]
       if (!grouped[day]) grouped[day] = []
@@ -99,7 +99,7 @@ export default function TripTimeline({ activities, tripId }) {
 
       {view === 'list' && activities.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {activities.map((activity) => <ActivityCard key={activity.id} activity={activity} tripId={tripId} />)}
+          {activities.map((activity: any) => <ActivityCard key={activity.id} activity={activity} tripId={tripId} />)}
         </div>
       )}
 
@@ -113,7 +113,7 @@ export default function TripTimeline({ activities, tripId }) {
                 <div style={{ height: '1px', flex: 1, background: 'var(--sand-dark)' }} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {grouped[day].map((activity) => <ActivityCard key={activity.id} activity={activity} tripId={tripId} showTime />)}
+                {grouped[day].map((activity: any) => <ActivityCard key={activity.id} activity={activity} tripId={tripId} showTime />)}
               </div>
             </div>
           ))}
@@ -125,7 +125,7 @@ export default function TripTimeline({ activities, tripId }) {
                 <div style={{ height: '1px', flex: 1, background: 'var(--sand-dark)' }} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {noDate.map((activity) => <ActivityCard key={activity.id} activity={activity} tripId={tripId} />)}
+                {noDate.map((activity: any) => <ActivityCard key={activity.id} activity={activity} tripId={tripId} />)}
               </div>
             </div>
           )}
