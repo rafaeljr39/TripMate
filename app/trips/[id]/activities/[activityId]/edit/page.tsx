@@ -160,8 +160,7 @@ export default function EditActivityPage({ params }: { params: Promise<{ id: str
         borderBottom: '1px solid var(--sand-dark)',
       }}>
         <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em' }}>
-          Trip<span style={{ color: 'var(--ink)' }}>Mate</span>
-        </span>
+          Adrift        </span>
         <a href={`/trips/${tripId}`} style={{
           fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.82rem',
           background: 'var(--ink)', color: 'var(--sand)',

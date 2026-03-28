@@ -31,8 +31,7 @@ export default function HomePage() {
         {/* Logo */}
         <div style={{ marginBottom: '48px' }}>
           <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2rem', color: 'var(--terracotta)', letterSpacing: '-0.03em', marginBottom: '8px' }}>
-            Trip<span style={{ color: 'var(--ink)' }}>Mate</span>
-          </p>
+            Adrift          </p>
           <p style={{ color: 'var(--ink-muted)', fontSize: '1.1rem', lineHeight: 1.5 }}>
             Your personal travel planner.<br />Every booking, every detail, one place.
           </p>

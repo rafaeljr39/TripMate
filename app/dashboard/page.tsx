@@ -67,8 +67,7 @@ export default async function DashboardPage() {
         borderBottom: '1px solid var(--sand-dark)',
       }}>
         <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em', flexShrink: 0 }}>
-          Trip<span style={{ color: 'var(--ink)' }}>Mate</span>
-        </span>
+          Adrift        </span>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Link href="/create" style={{

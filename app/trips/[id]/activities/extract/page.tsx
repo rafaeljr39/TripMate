@@ -178,8 +178,7 @@ export default function ExtractActivityPage({ params }: { params: Promise<{ id: 
         borderBottom: '1px solid var(--sand-dark)',
       }}>
         <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em' }}>
-          Trip<span style={{ color: 'var(--ink)' }}>Mate</span>
-        </span>
+          Adrift        </span>
         <a href={`/trips/${tripId}`} style={{
           fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.82rem',
           background: 'var(--ink)', color: 'var(--sand)',
@@ -482,7 +481,7 @@ export default function ExtractActivityPage({ params }: { params: Promise<{ id: 
               Email forwarding
             </h3>
             <p style={{ fontSize: '0.88rem', color: 'var(--ink-muted)', marginBottom: '20px', lineHeight: 1.6 }}>
-              Forward any confirmation email to your personal TripMate address and we'll extract the details automatically.
+              Forward any confirmation email to your personal Adrift address and we'll extract the details automatically.
             </p>
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',

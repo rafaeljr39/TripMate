@@ -64,7 +64,7 @@ export default function ShareActivityPage({ params }: { params: Promise<{ activi
           <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.5rem', color: 'var(--ink)', marginBottom: '8px' }}>Activity not found</h1>
           <p style={{ color: 'var(--ink-muted)', marginBottom: '24px' }}>This link may have expired or been removed.</p>
           <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, background: 'var(--terracotta)', color: 'var(--white)', padding: '12px 28px', borderRadius: '999px', textDecoration: 'none' }}>
-            Go to TripMate
+            Go to Adrift
           </Link>
         </div>
       </main>
@@ -83,8 +83,7 @@ export default function ShareActivityPage({ params }: { params: Promise<{ activi
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-muted)', marginBottom: '6px' }}>Shared via</p>
           <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em' }}>
-            Trip<span style={{ color: 'var(--ink)' }}>Mate</span>
-          </p>
+            Adrift          </p>
         </div>
 
         {/* Card */}
@@ -166,7 +165,7 @@ export default function ShareActivityPage({ params }: { params: Promise<{ activi
         </Link>
 
         <p style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', textAlign: 'center', marginTop: '16px', opacity: 0.5 }}>
-          TripMate — travel planning made simple
+          Adrift — travel planning made simple
         </p>
       </div>
     </main>

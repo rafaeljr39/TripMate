@@ -104,8 +104,7 @@ export default function EditTripPage({ params }: { params: Promise<{ id: string 
     <main style={{ minHeight: '100vh', background: 'var(--sand)', position: 'relative', zIndex: 1 }}>
       <nav style={{ position: 'sticky', top: 0, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 32px', background: 'rgba(245,239,224,0.93)', backdropFilter: 'blur(14px)', borderBottom: '1px solid var(--sand-dark)' }}>
         <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em' }}>
-          Trip<span style={{ color: 'var(--ink)' }}>Mate</span>
-        </span>
+          Adrift        </span>
         <a href={`/trips/${tripId}`} style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.82rem', background: 'var(--ink)', color: 'var(--sand)', padding: '7px 16px', borderRadius: '999px', textDecoration: 'none' }}>
           ← Back to trip
         </a>

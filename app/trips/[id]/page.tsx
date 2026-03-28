@@ -37,7 +37,7 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
 
   const days = daysBetween(trip.start_date, trip.end_date)
   const totalSpent = activities?.reduce((sum: number, a: any) => sum + (a.price ?? 0), 0) ?? 0
-  const inviteUrl = `https://trip-mate-delta.vercel.app/invite/${trip.invite_token}`
+  const inviteUrl = `https://adrift-app.com/invite/${trip.invite_token}`
 
   return (
     <TripDetailClient

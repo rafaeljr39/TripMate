@@ -90,8 +90,7 @@ export default function CreateTripPage() {
           color: 'var(--terracotta)',
           letterSpacing: '-0.03em',
         }}>
-          Trip<span style={{ color: 'var(--ink)' }}>Mate</span>
-        </span>
+          Adrift        </span>
         <a href="/dashboard" style={{
           fontFamily: 'Syne, sans-serif',
           fontWeight: 700,
