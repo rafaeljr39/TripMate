@@ -12,10 +12,20 @@ const TYPE_COLORS: Record<string, string> = {
   flight: 'var(--sky)',
   hotel: 'var(--sage)',
   tour: 'var(--gold)',
-  restaurant: 'var(--purple)',
-  transport: 'var(--terracotta)',
+  restaurant: 'var(--terracotta)',
+  transport: 'var(--gold)',
   activity: 'var(--gold)',
   other: 'var(--ink-muted)',
+}
+
+const TYPE_BG: Record<string, string> = {
+  flight: 'var(--sky-bg)',
+  hotel: 'var(--sage-bg)',
+  tour: 'var(--gold-bg)',
+  restaurant: 'var(--terra-bg)',
+  transport: 'var(--gold-bg)',
+  activity: 'var(--gold-bg)',
+  other: 'rgba(26,23,20,0.05)',
 }
 
 function formatDate(dateStr: string | null) {
@@ -29,6 +39,10 @@ function formatBudget(amount: number | null, currency: string) {
 }
 
 function formatDayHeader(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+}
+
+function formatDayLabel(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 }
 
@@ -64,6 +78,7 @@ export default function TripDetailClient({
   const [activeTab, setActiveTab] = useState<'calendar' | 'bookings'>('calendar')
   const [bookingsView, setBookingsView] = useState<'list' | 'timeline'>('list')
   const [copied, setCopied] = useState(false)
+  const [selectedDay, setSelectedDay] = useState<string | null>(null)
 
   const tripStartDate = trip.start_date ? new Date(trip.start_date) : new Date()
   const [calMonth, setCalMonth] = useState(tripStartDate.getMonth())
@@ -86,7 +101,7 @@ export default function TripDetailClient({
     }
   }
 
-  // Coming up — next 3 activities from today
+  // Coming up — next 3 from today
   const now = new Date()
   const upcomingActivities = activities
     .filter(a => a.start_time && new Date(a.start_time) >= now)
@@ -99,6 +114,13 @@ export default function TripDetailClient({
     if (a.price) budgetByType[a.type] = (budgetByType[a.type] ?? 0) + a.price
   })
   const confirmedCount = activities.filter(a => a.confirmation_code).length
+
+  // Activities for selected day
+  const selectedDayActivities = selectedDay
+    ? activities.filter(a => a.start_time && a.start_time.slice(0, 10) === selectedDay)
+        .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
+    : []
+  const selectedDayTotal = selectedDayActivities.reduce((sum, a) => sum + (a.price ?? 0), 0)
 
   function handleCopyInvite() {
     navigator.clipboard.writeText(inviteUrl)
@@ -151,10 +173,8 @@ export default function TripDetailClient({
         borderBottom: '1px solid var(--sand-dark)',
       }}>
         <Link href="/dashboard" style={{ fontSize: '0.85rem', color: 'var(--ink-muted)', textDecoration: 'none', fontWeight: 500 }}>← Back</Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: '0.88rem', background: 'var(--ink)', color: 'var(--sand)', padding: '6px 16px', borderRadius: '999px' }}>
-            📍 {trip.destination}{trip.start_date && ` · ${new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`}
-          </div>
+        <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: '0.88rem', background: 'var(--ink)', color: 'var(--sand)', padding: '6px 16px', borderRadius: '999px' }}>
+          📍 {trip.destination}{trip.start_date && ` · ${new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`}
         </div>
         <Link href={`/trips/${tripId}/edit`} style={{ fontSize: '0.85rem', color: 'var(--ink-muted)', textDecoration: 'none', fontWeight: 500 }}>Edit</Link>
       </nav>
@@ -172,10 +192,8 @@ export default function TripDetailClient({
           </p>
         </div>
 
-        {/* HERO STAT BAR — v7 order: Budget (main), Bookings, Activities, Gaps */}
+        {/* STAT BAR */}
         <div style={{ display: 'flex', gap: '10px', marginBottom: '22px', alignItems: 'stretch' }}>
-
-          {/* 1. My Trip Budget — main dark card */}
           <div style={{ background: 'var(--ink)', color: 'var(--sand)', borderRadius: '13px', padding: '13px 16px', flex: '1.6' }}>
             <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.55, marginBottom: '4px' }}>My Trip Budget</p>
             <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.5rem', letterSpacing: '-0.04em', lineHeight: 1 }}>
@@ -184,7 +202,7 @@ export default function TripDetailClient({
             {trip.budget && (
               <>
                 <div style={{ height: '4px', background: 'rgba(245,239,224,0.2)', borderRadius: '99px', overflow: 'hidden', marginTop: '8px' }}>
-                  <div style={{ height: '100%', borderRadius: '99px', background: 'linear-gradient(90deg, var(--gold-light), var(--terra-light))', width: `${Math.min((totalSpent / trip.budget) * 100, 100)}%`, transition: 'width .6s ease' }} />
+                  <div style={{ height: '100%', borderRadius: '99px', background: 'linear-gradient(90deg, var(--gold-light), var(--terra-light))', width: `${Math.min((totalSpent / trip.budget) * 100, 100)}%` }} />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', marginTop: '4px', opacity: 0.55 }}>
                   <span>{formatBudget(totalSpent, trip.budget_currency)} booked</span>
@@ -193,17 +211,11 @@ export default function TripDetailClient({
               </>
             )}
           </div>
-
-          {/* 2. Bookings */}
           <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '13px', padding: '13px 16px', flex: 1 }}>
             <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '4px' }}>Bookings</p>
-            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.5rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>
-              {activities.length}
-            </p>
+            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.5rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>{activities.length}</p>
             <p style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', marginTop: '3px' }}>{confirmedCount} confirmed</p>
           </div>
-
-          {/* 3. Activities */}
           <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '13px', padding: '13px 16px', flex: 1 }}>
             <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '4px' }}>Activities</p>
             <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.5rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>
@@ -211,8 +223,6 @@ export default function TripDetailClient({
             </p>
             <p style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', marginTop: '3px' }}>{days ?? '—'} days</p>
           </div>
-
-          {/* 4. Gaps — terracotta warning */}
           <div style={{
             background: gapDays.length > 0 ? 'var(--terra-bg)' : 'var(--card)',
             border: gapDays.length > 0 ? '1px solid rgba(196,85,42,0.28)' : '1px solid var(--sand-dark)',
@@ -228,7 +238,7 @@ export default function TripDetailClient({
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div style={{ display: 'flex', gap: '3px', background: 'var(--sand-dark)', borderRadius: '11px', padding: '3px' }}>
             {(['calendar', 'bookings'] as const).map(tab => (
@@ -288,19 +298,41 @@ export default function TripDetailClient({
                       const isGap = inTrip && !hasHotel && !hasFlight
                       const isStart = dateStr === trip.start_date
                       const isEnd = dateStr === trip.end_date
+                      const isSelected = selectedDay === dateStr
+                      const dayActivities = activities.filter(a => a.start_time?.slice(0, 10) === dateStr)
 
                       let bg = 'transparent', color = 'var(--ink)', border = 'none'
                       const opacity = inTrip ? 1 : 0.3
 
-                      if (hasHotel && hasFlight) { bg = 'var(--sage)'; color = 'white' }
+                      if (isSelected) { bg = 'var(--terracotta)'; color = 'white'; border = 'none' }
+                      else if (hasHotel && hasFlight) { bg = 'var(--sage)'; color = 'white' }
                       else if (hasHotel) { bg = 'var(--sage)'; color = 'white' }
                       else if (hasFlight) { bg = 'var(--sky)'; color = 'white' }
                       else if (isGap) { border = '1.5px dashed var(--terra-light)'; color = 'var(--terracotta)'; bg = 'rgba(196,85,42,0.07)' }
                       else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
 
                       return (
-                        <div key={dateStr} style={{ aspectRatio: '1', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: bg, color, border, opacity, fontSize: '0.82rem', fontWeight: isStart || isEnd ? 700 : 500, cursor: inTrip ? 'pointer' : 'default', transition: 'transform .15s' }}>
+                        <div
+                          key={dateStr}
+                          onClick={() => inTrip && setSelectedDay(selectedDay === dateStr ? null : dateStr)}
+                          style={{
+                            aspectRatio: '1', borderRadius: '9px',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            background: bg, color, border, opacity,
+                            fontSize: '0.82rem', fontWeight: isStart || isEnd || isSelected ? 700 : 500,
+                            cursor: inTrip ? 'pointer' : 'default',
+                            transition: 'all .15s',
+                            position: 'relative',
+                          }}
+                        >
                           {day}
+                          {dayActivities.length > 0 && !isSelected && (
+                            <div style={{ display: 'flex', gap: '2px', position: 'absolute', bottom: '3px' }}>
+                              {dayActivities.slice(0, 3).map((_, di) => (
+                                <div key={di} style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'currentColor', opacity: 0.6 }} />
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )
                     })}
@@ -309,16 +341,14 @@ export default function TripDetailClient({
 
                 {/* Legend */}
                 <div style={{ padding: '10px 20px', borderTop: '1px solid var(--sand-dark)', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                  {[
-                    { color: 'var(--sky)', label: 'Flight' },
-                    { color: 'var(--sage)', label: 'Hotel' },
-                    { color: 'var(--sage)', label: 'Hotel+Activities', gradient: 'linear-gradient(90deg, var(--sage), var(--gold))' },
-                  ].map(l => (
-                    <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <div style={{ width: '8px', height: '8px', borderRadius: '3px', background: l.gradient ?? l.color }} />
-                      <span style={{ fontSize: '0.68rem', fontWeight: 500, color: 'var(--ink-muted)' }}>{l.label}</span>
-                    </div>
-                  ))}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '3px', background: 'var(--sky)' }} />
+                    <span style={{ fontSize: '0.68rem', fontWeight: 500, color: 'var(--ink-muted)' }}>Flight</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '3px', background: 'var(--sage)' }} />
+                    <span style={{ fontSize: '0.68rem', fontWeight: 500, color: 'var(--ink-muted)' }}>Hotel</span>
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '3px', background: 'rgba(196,85,42,0.2)', border: '1.5px dashed var(--terracotta)' }} />
                     <span style={{ fontSize: '0.68rem', fontWeight: 500, color: 'var(--ink-muted)' }}>No accommodation</span>
@@ -332,6 +362,115 @@ export default function TripDetailClient({
                     <p style={{ fontSize: '0.8rem', color: 'var(--terracotta)' }}>
                       <strong>No accommodation booked</strong> for {gapDays.length} night{gapDays.length === 1 ? '' : 's'}.
                     </p>
+                  </div>
+                )}
+
+                {/* DAY DETAIL DRAWER */}
+                {selectedDay && (
+                  <div style={{ margin: '0 22px 22px', background: 'var(--white)', border: '1px solid var(--sand-dark)', borderRadius: '16px', overflow: 'hidden', animation: 'slideDown 0.22s ease' }}>
+                    {/* Drawer header */}
+                    <div style={{ padding: '14px 18px', background: 'var(--ink)', color: 'var(--sand)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div>
+                        <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1rem' }}>
+                          📍 {formatDayLabel(selectedDay)}
+                        </p>
+                        <p style={{ fontSize: '0.74rem', opacity: 0.55, marginTop: '2px' }}>
+                          {trip.destination} · {selectedDayActivities.length} {selectedDayActivities.length === 1 ? 'activity' : 'activities'}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setSelectedDay(null)}
+                        style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'var(--sand)', width: '28px', height: '28px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >✕</button>
+                    </div>
+
+                    {/* Activities timeline */}
+                    {selectedDayActivities.length > 0 ? (
+                      <div style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: '0' }}>
+                        {selectedDayActivities.map((a, idx) => (
+                          <div key={a.id} style={{ display: 'flex', gap: '12px', position: 'relative', paddingBottom: idx < selectedDayActivities.length - 1 ? '14px' : '0' }}>
+                            {/* Connector line */}
+                            {idx < selectedDayActivities.length - 1 && (
+                              <div style={{ position: 'absolute', left: '17px', top: '34px', bottom: 0, width: '2px', background: 'var(--sand-dark)' }} />
+                            )}
+                            {/* Left: time + icon */}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                              <p style={{ fontSize: '0.62rem', fontWeight: 600, opacity: 0.5, marginBottom: '3px', whiteSpace: 'nowrap' }}>
+                                {a.start_time ? new Date(a.start_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '—'}
+                              </p>
+                              <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: TYPE_BG[a.type] ?? 'rgba(26,23,20,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', position: 'relative', zIndex: 1 }}>
+                                {TYPE_ICONS[a.type] ?? '📌'}
+                              </div>
+                            </div>
+                            {/* Right: body */}
+                            <div style={{ flex: 1, background: 'var(--sand)', border: '1px solid var(--sand-dark)', borderRadius: '11px', padding: '10px 13px', transition: 'border-color .15s' }}>
+                              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.85rem', color: 'var(--ink)' }}>
+                                    {a.title}
+                                    {a.confirmation_code && (
+                                      <span style={{ fontSize: '0.6rem', fontWeight: 700, background: 'var(--sage-bg)', color: 'var(--sage)', padding: '1px 6px', borderRadius: '99px', marginLeft: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Confirmed</span>
+                                    )}
+                                  </p>
+                                  {a.location && <p style={{ fontSize: '0.72rem', opacity: 0.6, marginTop: '2px' }}>{a.location}</p>}
+                                  {a.notes && <p style={{ fontSize: '0.72rem', opacity: 0.6, marginTop: '2px' }}>{a.notes}</p>}
+                                </div>
+                                {a.price && (
+                                  <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.85rem', color: 'var(--terracotta)', flexShrink: 0 }}>
+                                    {formatBudget(a.price, a.currency ?? 'USD')}
+                                  </p>
+                                )}
+                              </div>
+                              {/* Footer: share button */}
+                              <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Link
+                                  href={`/share/${a.id}`}
+                                  target="_blank"
+                                  style={{ fontSize: '0.65rem', fontWeight: 600, padding: '3px 9px', borderRadius: '6px', border: '1px solid var(--sand-dark)', background: 'var(--white)', cursor: 'pointer', textDecoration: 'none', color: 'var(--ink-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                >
+                                  🔗 Share
+                                </Link>
+                                <Link
+                                  href={`/trips/${tripId}/activities/${a.id}/edit`}
+                                  style={{ fontSize: '0.65rem', fontWeight: 600, padding: '3px 9px', borderRadius: '6px', border: '1px solid var(--sand-dark)', background: 'var(--white)', cursor: 'pointer', textDecoration: 'none', color: 'var(--ink-muted)' }}
+                                >
+                                  Edit
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ padding: '14px 18px' }}>
+                        <p style={{ fontSize: '0.82rem', color: 'var(--ink-muted)', textAlign: 'center', padding: '8px 0' }}>No activities on this day yet</p>
+                      </div>
+                    )}
+
+                    {/* Add activity to this day */}
+                    <Link
+                      href={extractHref}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '7px',
+                        margin: '0 18px 14px', padding: '9px 13px',
+                        border: '1.5px dashed var(--sand-dark)', borderRadius: '10px',
+                        fontSize: '0.77rem', color: 'var(--ink-muted)',
+                        textDecoration: 'none', transition: 'all .2s',
+                        background: 'transparent',
+                      }}
+                    >
+                      + Add activity to this day
+                    </Link>
+
+                    {/* Day total bar */}
+                    {selectedDayTotal > 0 && (
+                      <div style={{ margin: '0 18px 16px', padding: '11px 15px', background: 'var(--ink)', color: 'var(--sand)', borderRadius: '11px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.74rem', opacity: 0.55 }}>Day total</span>
+                        <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.05rem' }}>
+                          {formatBudget(selectedDayTotal, trip.budget_currency ?? 'USD')}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -416,7 +555,7 @@ export default function TripDetailClient({
                   const mon = d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
                   const dayNum = d.getDate()
                   return (
-                    <div key={a.id} style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', padding: '9px 11px', borderRadius: '10px', background: 'var(--white)', border: '1px solid var(--sand-dark)', cursor: 'pointer', transition: 'all .15s' }}>
+                    <div key={a.id} style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', padding: '9px 11px', borderRadius: '10px', background: 'var(--white)', border: '1px solid var(--sand-dark)' }}>
                       <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '0.7rem', background: 'var(--terracotta)', color: '#fff', borderRadius: '7px', padding: '3px 7px', textAlign: 'center', flexShrink: 0, lineHeight: 1.3 }}>
                         {mon}<br />{dayNum}
                       </div>
@@ -456,7 +595,7 @@ export default function TripDetailClient({
                           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: 'var(--ink)' }}>{formatBudget(amount, trip.budget_currency)}</span>
                         </div>
                         <div style={{ height: '4px', background: 'var(--sand-dark)', borderRadius: '99px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', borderRadius: '99px', background: color, width: `${pct}%`, transition: 'width .6s ease' }} />
+                          <div style={{ height: '100%', borderRadius: '99px', background: color, width: `${pct}%` }} />
                         </div>
                       </div>
                     )
@@ -465,7 +604,7 @@ export default function TripDetailClient({
               </div>
             )}
 
-            {/* Invite Travel Buddy — exact v7 */}
+            {/* Invite Travel Buddy */}
             <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '18px', overflow: 'hidden' }}>
               <div style={{ padding: '16px 18px', textAlign: 'center' }}>
                 <p style={{ fontSize: '1.8rem', marginBottom: '6px' }}>👋</p>
@@ -475,18 +614,13 @@ export default function TripDetailClient({
                 <p style={{ fontSize: '0.74rem', color: 'var(--ink-muted)', marginBottom: '12px', lineHeight: 1.4, opacity: 0.7 }}>
                   Invite a travel buddy to share bookings, split costs, and coordinate plans together.
                 </p>
-                <button
-                  onClick={handleCopyInvite}
-                  style={{
-                    width: '100%',
-                    fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.78rem',
-                    background: copied ? 'var(--terra-bg)' : 'transparent',
-                    color: 'var(--terracotta)',
-                    border: copied ? '1.5px solid var(--terracotta)' : '1.5px dashed var(--terracotta)',
-                    borderRadius: '10px', padding: '9px 16px',
-                    cursor: 'pointer', transition: 'all .2s',
-                  }}
-                >
+                <button onClick={handleCopyInvite} style={{
+                  width: '100%', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.78rem',
+                  background: copied ? 'var(--terra-bg)' : 'transparent',
+                  color: 'var(--terracotta)',
+                  border: copied ? '1.5px solid var(--terracotta)' : '1.5px dashed var(--terracotta)',
+                  borderRadius: '10px', padding: '9px 16px', cursor: 'pointer', transition: 'all .2s',
+                }}>
                   {copied ? '✓ Copied!' : '+ Invite a Travel Buddy'}
                 </button>
               </div>
@@ -496,27 +630,24 @@ export default function TripDetailClient({
             <Link href={extractHref} style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
               background: 'var(--terracotta)', color: 'var(--white)',
-              border: 'none', borderRadius: '13px', padding: '13px',
+              borderRadius: '13px', padding: '13px',
               fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.88rem',
-              cursor: 'pointer', transition: 'all .2s', textDecoration: 'none',
+              textDecoration: 'none',
             }}>
               + Add Booking
             </Link>
-
           </div>
         </div>
       </div>
+
+      <style>{`@keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }`}</style>
     </main>
   )
 }
 
 function ActivityCard({ activity, tripId, showTime }: { activity: any, tripId: string, showTime?: boolean }) {
   const icon = TYPE_ICONS[activity.type] ?? '📌'
-  const iconBg = activity.type === 'flight' ? 'var(--sky-bg)'
-    : activity.type === 'hotel' ? 'var(--sage-bg)'
-    : activity.type === 'transport' ? 'var(--gold-bg)'
-    : activity.type === 'restaurant' ? 'var(--terra-bg)'
-    : 'rgba(26,23,20,0.05)'
+  const iconBg = TYPE_BG[activity.type] ?? 'rgba(26,23,20,0.05)'
   const price = activity.price
     ? new Intl.NumberFormat('en-US', { style: 'currency', currency: activity.currency ?? 'USD' }).format(activity.price)
     : null
@@ -530,7 +661,7 @@ function ActivityCard({ activity, tripId, showTime }: { activity: any, tripId: s
         <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: '0.86rem', color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {activity.title}
           {activity.confirmation_code && (
-            <span style={{ fontSize: '0.65rem', fontWeight: 700, background: 'var(--sage-bg)', color: 'var(--sage)', padding: '1px 6px', borderRadius: '99px', marginLeft: '6px' }}>Confirmed</span>
+            <span style={{ fontSize: '0.6rem', fontWeight: 700, background: 'var(--sage-bg)', color: 'var(--sage)', padding: '1px 6px', borderRadius: '99px', marginLeft: '6px' }}>Confirmed</span>
           )}
         </p>
         <p style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', opacity: 0.6, marginTop: '2px' }}>
@@ -540,7 +671,7 @@ function ActivityCard({ activity, tripId, showTime }: { activity: any, tripId: s
       </div>
       <div style={{ textAlign: 'right', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
         {price && <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.92rem', color: 'var(--ink)' }}>{price}</p>}
-        <Link href={`/share/${activity.id}`} target="_blank" style={{ fontSize: '0.68rem', color: 'var(--ink-muted)', border: '1px solid var(--sand-dark)', borderRadius: '6px', padding: '3px 8px', textDecoration: 'none', fontWeight: 600, transition: 'all .15s' }}>Share</Link>
+        <Link href={`/share/${activity.id}`} target="_blank" style={{ fontSize: '0.68rem', color: 'var(--ink-muted)', border: '1px solid var(--sand-dark)', borderRadius: '6px', padding: '3px 8px', textDecoration: 'none', fontWeight: 600 }}>Share</Link>
         <Link href={`/trips/${tripId}/activities/${activity.id}/edit`} style={{ fontSize: '0.68rem', color: 'var(--ink-muted)', border: '1px solid var(--sand-dark)', borderRadius: '6px', padding: '3px 8px', textDecoration: 'none', fontWeight: 600 }}>Edit</Link>
       </div>
     </div>
