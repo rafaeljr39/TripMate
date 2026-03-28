@@ -52,3 +52,128 @@ body::before {
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Syne', sans-serif;
 }
+
+/* ── MOBILE RESPONSIVE ── */
+
+/* Stat bars: 2x2 grid on mobile */
+.stat-bar-grid {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+@media (max-width: 640px) {
+  .stat-bar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+}
+
+/* Two-column layout: stack on mobile */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 22px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .two-col {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Nav: hide sign out text on mobile, keep avatar */
+.nav-signout-text {
+  display: inline;
+}
+
+@media (max-width: 640px) {
+  .nav-signout-text {
+    display: none;
+  }
+}
+
+/* Page padding: tighter on mobile */
+.page-pad {
+  padding: 40px 24px;
+}
+
+@media (max-width: 640px) {
+  .page-pad {
+    padding: 20px 16px;
+  }
+}
+
+/* Trip detail header: smaller on mobile */
+.trip-title-h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 2.2rem;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+@media (max-width: 640px) {
+  .trip-title-h1 {
+    font-size: 1.6rem;
+  }
+}
+
+/* Nav destination pill: truncate on mobile */
+.nav-dest-pill {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 0.88rem;
+  background: var(--ink);
+  color: var(--sand);
+  padding: 6px 16px;
+  border-radius: 999px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .nav-dest-pill {
+    max-width: 140px;
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+}
+
+/* Tabs row: wrap on mobile */
+.tabs-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 480px) {
+  .tabs-action-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+/* Dashboard stat cards: scrollable row on mobile */
+.dash-stat-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 32px;
+  align-items: stretch;
+}
+
+@media (max-width: 640px) {
+  .dash-stat-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+}
