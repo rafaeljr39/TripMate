@@ -71,8 +71,13 @@ export default function HomePage() {
         </button>
 
         <p style={{ color: 'var(--ink-muted)', fontSize: '0.75rem', marginTop: '16px' }}>
-          Free to use · No credit card required
-        </p>
+  Free to use · No credit card required
+</p>
+<p style={{ color: 'var(--ink-muted)', fontSize: '0.72rem', marginTop: '12px', opacity: 0.6 }}>
+  <a href="/privacy" style={{ color: 'var(--ink-muted)', textDecoration: 'underline' }}>Privacy Policy</a>
+  {' · '}
+  <a href="/terms" style={{ color: 'var(--ink-muted)', textDecoration: 'underline' }}>Terms of Service</a>
+</p>
       </div>
     </main>
   )
