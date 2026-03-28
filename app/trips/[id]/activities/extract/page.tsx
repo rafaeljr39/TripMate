@@ -16,6 +16,36 @@ const ACTIVITY_TYPES = [
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'MXN']
 
+const TYPE_ICONS: Record<string, string> = {
+  flight: '✈️', hotel: '🏨', tour: '🗺️',
+  restaurant: '🍽️', transport: '🚌', activity: '🎯', other: '📌',
+}
+
+const inputStyle = {
+  width: '100%',
+  background: 'var(--white)',
+  border: '1.5px solid var(--sand-dark)',
+  borderRadius: '12px',
+  padding: '12px 16px',
+  fontSize: '0.95rem',
+  color: 'var(--ink)',
+  fontFamily: 'DM Sans, sans-serif',
+  outline: 'none',
+  transition: 'border-color .2s',
+  colorScheme: 'light' as const,
+}
+
+const labelStyle = {
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.08em',
+  color: 'var(--ink-muted)',
+  fontFamily: 'Syne, sans-serif',
+  marginBottom: '6px',
+  display: 'block',
+}
+
 export default function ExtractActivityPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const supabase = createClient()
@@ -76,7 +106,6 @@ export default function ExtractActivityPage({ params }: { params: Promise<{ id: 
       })
 
       const data = await response.json()
-
       if (!response.ok) throw new Error(data.error ?? 'Extraction failed')
 
       setForm({
@@ -138,149 +167,363 @@ export default function ExtractActivityPage({ params }: { params: Promise<{ id: 
   }
 
   return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white flex flex-col items-center justify-center px-4 py-16">
-      <div className="w-full max-w-xl">
-        <div className="mb-10">
-          <a href={`/trips/${tripId}`} className="text-sm text-white/40 hover:text-white/70 transition mb-6 inline-block">
-            ← Back to trip
-          </a>
-          <h1 className="text-4xl font-bold tracking-tight">Scan confirmation</h1>
-          <p className="text-white/50 mt-2">Upload a screenshot and we'll fill in the details automatically.</p>
+    <main style={{ minHeight: '100vh', background: 'var(--sand)', position: 'relative', zIndex: 1 }}>
+
+      {/* Nav */}
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 200,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '14px 32px',
+        background: 'rgba(245,239,224,0.93)',
+        backdropFilter: 'blur(14px)',
+        borderBottom: '1px solid var(--sand-dark)',
+      }}>
+        <span style={{
+          fontFamily: 'Syne, sans-serif', fontWeight: 800,
+          fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em',
+        }}>
+          Trip<span style={{ color: 'var(--ink)' }}>Mate</span>
+        </span>
+        <a href={`/trips/${tripId}`} style={{
+          fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.82rem',
+          background: 'var(--ink)', color: 'var(--sand)',
+          padding: '7px 16px', borderRadius: '999px', textDecoration: 'none',
+        }}>
+          ← Back to trip
+        </a>
+      </nav>
+
+      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '48px 24px' }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            background: 'var(--terra-bg)', border: '1px solid var(--terracotta)',
+            borderRadius: '999px', padding: '4px 12px', marginBottom: '16px',
+          }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--terracotta)', fontFamily: 'Syne, sans-serif' }}>
+              📸 AI Extraction
+            </span>
+          </div>
+          <h1 style={{
+            fontFamily: 'Syne, sans-serif', fontWeight: 800,
+            fontSize: '2rem', letterSpacing: '-0.04em',
+            color: 'var(--ink)', lineHeight: 1.1, marginBottom: '8px',
+          }}>
+            Scan confirmation
+          </h1>
+          <p style={{ fontSize: '0.9rem', color: 'var(--ink-muted)' }}>
+            Upload a screenshot and we'll fill in the details automatically.
+          </p>
         </div>
 
-        {/* Upload Area */}
+        {/* Upload stage */}
         {!extracted && (
-          <div className="space-y-4 mb-8">
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-            />
+          <div style={{ marginBottom: '24px' }}>
+            <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
 
             {!image ? (
               <button
                 onClick={() => fileRef.current?.click()}
-                className="w-full border-2 border-dashed border-white/15 rounded-2xl p-16 text-center hover:border-white/30 transition group"
+                style={{
+                  width: '100%',
+                  background: 'var(--card)',
+                  border: '2px dashed var(--sand-dark)',
+                  borderRadius: '20px',
+                  padding: '56px 32px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all .2s',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--terracotta)'
+                  ;(e.currentTarget as HTMLButtonElement).style.background = 'var(--terra-bg)'
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--sand-dark)'
+                  ;(e.currentTarget as HTMLButtonElement).style.background = 'var(--card)'
+                }}
               >
-                <p className="text-5xl mb-4">📸</p>
-                <p className="font-semibold text-white/70 group-hover:text-white transition">Upload screenshot</p>
-                <p className="text-white/30 text-sm mt-1">Tap to choose from your photos</p>
+                <p style={{ fontSize: '3rem', marginBottom: '12px' }}>📸</p>
+                <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: 'var(--ink)', marginBottom: '4px' }}>
+                  Upload screenshot
+                </p>
+                <p style={{ fontSize: '0.82rem', color: 'var(--ink-muted)' }}>
+                  Tap to choose from your photos
+                </p>
               </button>
             ) : (
-              <div className="space-y-4">
-                <div className="relative rounded-2xl overflow-hidden border border-white/10">
-                  <img src={image} alt="Confirmation screenshot" className="w-full object-contain max-h-80" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--sand-dark)' }}>
+                  <img src={image} alt="Confirmation screenshot" style={{ width: '100%', objectFit: 'contain', maxHeight: '320px', display: 'block' }} />
                   <button
                     onClick={() => { setImage(null); setImageFile(null) }}
-                    className="absolute top-3 right-3 bg-black/60 text-white/70 hover:text-white rounded-full w-8 h-8 flex items-center justify-center text-sm transition"
-                  >
-                    ✕
-                  </button>
+                    style={{
+                      position: 'absolute', top: '10px', right: '10px',
+                      background: 'rgba(26,23,20,0.6)', color: 'var(--white)',
+                      border: 'none', borderRadius: '50%',
+                      width: '30px', height: '30px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', fontSize: '0.8rem',
+                    }}
+                  >✕</button>
                 </div>
 
-                <button
-                  onClick={handleExtract}
-                  disabled={extracting}
-                  className="w-full bg-white text-black font-semibold py-3.5 rounded-xl hover:bg-white/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {extracting ? '✨ Reading confirmation...' : '✨ Extract details'}
-                </button>
+                {/* Loading state */}
+                {extracting && (
+                  <div style={{
+                    background: 'var(--card)', border: '1px solid var(--sand-dark)',
+                    borderRadius: '16px', padding: '28px',
+                    textAlign: 'center',
+                  }}>
+                    <div style={{
+                      width: '40px', height: '40px', borderRadius: '50%',
+                      border: '3px solid var(--sand-dark)',
+                      borderTopColor: 'var(--terracotta)',
+                      margin: '0 auto 16px',
+                      animation: 'spin 0.8s linear infinite',
+                    }} />
+                    <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: 'var(--ink)', marginBottom: '4px' }}>
+                      Reading your confirmation...
+                    </p>
+                    <p style={{ fontSize: '0.82rem', color: 'var(--ink-muted)' }}>
+                      AI is extracting the details
+                    </p>
+                  </div>
+                )}
+
+                {!extracting && (
+                  <button
+                    onClick={handleExtract}
+                    style={{
+                      width: '100%',
+                      background: 'var(--terracotta)',
+                      color: 'var(--white)',
+                      fontFamily: 'Syne, sans-serif',
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                      padding: '14px',
+                      borderRadius: '12px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all .2s',
+                    }}
+                  >
+                    ✨ Extract details
+                  </button>
+                )}
               </div>
             )}
 
             {error && (
-              <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-3">
+              <div style={{
+                background: 'var(--terra-bg)', border: '1px solid var(--terracotta)',
+                borderRadius: '12px', padding: '12px 16px',
+                fontSize: '0.85rem', color: 'var(--terracotta)', marginTop: '12px',
+              }}>
                 {error}
-              </p>
+              </div>
             )}
           </div>
         )}
 
-        {/* Extracted Form */}
+        {/* Extracted / Parsed Card */}
         {extracted && (
-          <div className="space-y-4">
-            <div className="bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-3 flex items-center gap-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+            {/* Success banner */}
+            <div style={{
+              background: 'var(--sage-bg)', border: '1px solid var(--sage)',
+              borderRadius: '12px', padding: '12px 16px',
+              display: 'flex', alignItems: 'center', gap: '10px',
+            }}>
               <span>✅</span>
-              <p className="text-green-400 text-sm font-medium">Details extracted! Review and save.</p>
+              <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--sage)', fontFamily: 'Syne, sans-serif' }}>
+                Details extracted! Review and confirm below.
+              </p>
             </div>
 
-            <form onSubmit={handleSave} className="space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-white/70">Type</label>
-                <select name="type" value={form.type} onChange={handleChange}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/30 transition">
-                  {ACTIVITY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-white/70">Title</label>
-                <input name="title" value={form.title} onChange={handleChange} required
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/30 transition" />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-white/70">Location <span className="text-white/30">(optional)</span></label>
-                <input name="location" value={form.location} onChange={handleChange}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/30 transition" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-white/70">Start time</label>
-                  <input type="datetime-local" name="start_time" value={form.start_time} onChange={handleChange}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/30 transition [color-scheme:dark]" />
+            {/* Parsed card */}
+            <div style={{
+              background: 'var(--card)', border: '1px solid var(--sand-dark)',
+              borderRadius: '20px', overflow: 'hidden',
+              boxShadow: '0 2px 16px rgba(26,23,20,0.08)',
+            }}>
+              {/* Card header */}
+              <div style={{
+                padding: '16px 20px',
+                borderBottom: '1px solid var(--sand-dark)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                background: 'var(--sand-mid)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '1.5rem' }}>{TYPE_ICONS[form.type] ?? '📌'}</span>
+                  <div>
+                    <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: 'var(--ink)' }}>
+                      {ACTIVITY_TYPES.find(t => t.value === form.type)?.label ?? 'Booking'} Detected
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-white/70">End time</label>
-                  <input type="datetime-local" name="end_time" value={form.end_time} onChange={handleChange}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/30 transition [color-scheme:dark]" />
-                </div>
+                <span style={{
+                  fontSize: '0.68rem', fontWeight: 700,
+                  background: 'var(--terra-bg)', color: 'var(--terracotta)',
+                  border: '1px solid var(--terracotta)',
+                  padding: '3px 10px', borderRadius: '999px',
+                  fontFamily: 'Syne, sans-serif',
+                }}>
+                  AI Extracted
+                </span>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-white/70">Confirmation code</label>
-                <input name="confirmation_code" value={form.confirmation_code} onChange={handleChange}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/30 transition" />
-              </div>
+              {/* Form fields */}
+              <form onSubmit={handleSave} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-white/70">Price <span className="text-white/30">(optional)</span></label>
-                <div className="flex gap-3">
-                  <select name="currency" value={form.currency} onChange={handleChange}
-                    className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-white/30 transition">
-                    {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+                <div>
+                  <label style={labelStyle}>Type</label>
+                  <select name="type" value={form.type} onChange={handleChange}
+                    style={{ ...inputStyle }}
+                    onFocus={e => e.target.style.borderColor = 'var(--terracotta)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--sand-dark)'}
+                  >
+                    {ACTIVITY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
-                  <input type="number" name="price" value={form.price} onChange={handleChange} min={0} placeholder="0.00"
-                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/25 focus:outline-none focus:border-white/30 transition" />
                 </div>
-              </div>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-white/70">Notes</label>
-                <textarea name="notes" value={form.notes} onChange={handleChange} rows={3}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/30 transition resize-none" />
-              </div>
+                <div>
+                  <label style={labelStyle}>Title</label>
+                  <input name="title" value={form.title} onChange={handleChange} required
+                    style={inputStyle}
+                    onFocus={e => e.target.style.borderColor = 'var(--terracotta)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--sand-dark)'}
+                  />
+                </div>
 
-              {error && (
-                <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-3">{error}</p>
-              )}
+                <div>
+                  <label style={labelStyle}>Location <span style={{ textTransform: 'none', fontWeight: 400, opacity: 0.6 }}>(optional)</span></label>
+                  <input name="location" value={form.location} onChange={handleChange}
+                    style={inputStyle}
+                    onFocus={e => e.target.style.borderColor = 'var(--terracotta)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--sand-dark)'}
+                  />
+                </div>
 
-              <button type="submit" disabled={saving}
-                className="w-full bg-white text-black font-semibold py-3.5 rounded-xl hover:bg-white/90 transition disabled:opacity-50">
-                {saving ? 'Saving...' : 'Save activity →'}
-              </button>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={labelStyle}>Start time</label>
+                    <input type="datetime-local" name="start_time" value={form.start_time} onChange={handleChange}
+                      style={inputStyle}
+                      onFocus={e => e.target.style.borderColor = 'var(--terracotta)'}
+                      onBlur={e => e.target.style.borderColor = 'var(--sand-dark)'}
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>End time</label>
+                    <input type="datetime-local" name="end_time" value={form.end_time} onChange={handleChange}
+                      style={inputStyle}
+                      onFocus={e => e.target.style.borderColor = 'var(--terracotta)'}
+                      onBlur={e => e.target.style.borderColor = 'var(--sand-dark)'}
+                    />
+                  </div>
+                </div>
 
-              <button type="button" onClick={() => { setExtracted(false); setImage(null); setImageFile(null) }}
-                className="w-full text-white/30 hover:text-white text-sm transition">
-                ← Try a different image
-              </button>
-            </form>
+                <div>
+                  <label style={labelStyle}>Confirmation code</label>
+                  <input name="confirmation_code" value={form.confirmation_code} onChange={handleChange}
+                    style={inputStyle}
+                    onFocus={e => e.target.style.borderColor = 'var(--terracotta)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--sand-dark)'}
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Price <span style={{ textTransform: 'none', fontWeight: 400, opacity: 0.6 }}>(optional)</span></label>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <select name="currency" value={form.currency} onChange={handleChange}
+                      style={{ ...inputStyle, width: 'auto' }}
+                      onFocus={e => e.target.style.borderColor = 'var(--terracotta)'}
+                      onBlur={e => e.target.style.borderColor = 'var(--sand-dark)'}
+                    >
+                      {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    <input type="number" name="price" value={form.price} onChange={handleChange}
+                      min={0} placeholder="0.00"
+                      style={{ ...inputStyle, flex: 1 }}
+                      onFocus={e => e.target.style.borderColor = 'var(--terracotta)'}
+                      onBlur={e => e.target.style.borderColor = 'var(--sand-dark)'}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Notes</label>
+                  <textarea name="notes" value={form.notes} onChange={handleChange} rows={3}
+                    style={{ ...inputStyle, resize: 'none' }}
+                    onFocus={e => e.target.style.borderColor = 'var(--terracotta)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--sand-dark)'}
+                  />
+                </div>
+
+                {error && (
+                  <div style={{
+                    background: 'var(--terra-bg)', border: '1px solid var(--terracotta)',
+                    borderRadius: '12px', padding: '12px 16px',
+                    fontSize: '0.85rem', color: 'var(--terracotta)',
+                  }}>
+                    {error}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                  <button
+                    type="button"
+                    onClick={() => { setExtracted(false); setImage(null); setImageFile(null) }}
+                    style={{
+                      flex: 1,
+                      background: 'transparent',
+                      border: '1.5px solid var(--sand-dark)',
+                      borderRadius: '12px',
+                      padding: '13px',
+                      fontFamily: 'Syne, sans-serif',
+                      fontWeight: 600,
+                      fontSize: '0.88rem',
+                      color: 'var(--ink-muted)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ← Try again
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    style={{
+                      flex: 2,
+                      background: saving ? 'var(--ink-muted)' : 'var(--terracotta)',
+                      color: 'var(--white)',
+                      fontFamily: 'Syne, sans-serif',
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                      padding: '13px',
+                      borderRadius: '12px',
+                      border: 'none',
+                      cursor: saving ? 'not-allowed' : 'pointer',
+                      transition: 'all .2s',
+                    }}
+                  >
+                    {saving ? 'Saving...' : 'Confirm & Save →'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </main>
   )
 }
