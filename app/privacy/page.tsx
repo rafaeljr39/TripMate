@@ -30,7 +30,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.1rem', color: 'var(--ink)', marginBottom: '12px' }}>1. Who we are</h2>
-            <p>Adrift ("we", "our", "us") is a travel planning application available at adrift-app.com. We help travelers organize bookings, itineraries, and trip details in one place. If you have questions about this policy, contact us at <a href="mailto:hello@adrift-app.com" style={{ color: 'var(--terracotta)' }}>hello@adrift-app.com</a>.</p>
+            <p>Adrift ("we", "our", "us") is a travel planning application available at adrift-app.com. We help travelers organize bookings, itineraries, and trip details in one place. If you have questions about this policy, contact us at <a href="mailto:adriftapplegal@gmail.com" style={{ color: 'var(--terracotta)' }}>adriftapplegal@gmail.com</a>.</p>
           </section>
 
           <section>
@@ -88,7 +88,7 @@ export default function PrivacyPage() {
               <li><strong>Portability:</strong> Export your data in a readable format</li>
               <li><strong>Objection:</strong> Object to certain types of processing</li>
             </ul>
-            <p style={{ marginTop: '12px' }}>To exercise any of these rights, email us at <a href="mailto:hello@adrift-app.com" style={{ color: 'var(--terracotta)' }}>hello@adrift-app.com</a> or use the delete account option in your dashboard settings.</p>
+            <p style={{ marginTop: '12px' }}>To exercise any of these rights, email us at <a href="mailto:adriftapplegal@gmail.com" style={{ color: 'var(--terracotta)' }}>adriftapplegal@gmail.com</a> or use the delete account option in your dashboard settings.</p>
           </section>
 
           <section>
@@ -114,8 +114,8 @@ export default function PrivacyPage() {
           <section style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '24px' }}>
             <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.1rem', color: 'var(--ink)', marginBottom: '8px' }}>Contact us</h2>
             <p>Questions about this privacy policy? We're happy to help.</p>
-            <a href="mailto:hello@adrift-app.com" style={{ display: 'inline-block', marginTop: '12px', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.85rem', background: 'var(--terracotta)', color: 'var(--white)', padding: '10px 20px', borderRadius: '999px', textDecoration: 'none' }}>
-              hello@adrift-app.com
+            <a href="mailto:adriftapplegal@gmail.com" style={{ display: 'inline-block', marginTop: '12px', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.85rem', background: 'var(--terracotta)', color: 'var(--white)', padding: '10px 20px', borderRadius: '999px', textDecoration: 'none' }}>
+              adriftapplegal@gmail.com
             </a>
           </section>
 

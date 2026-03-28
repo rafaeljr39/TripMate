@@ -99,8 +99,8 @@ export default function TermsPage() {
           <section style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '24px' }}>
             <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.1rem', color: 'var(--ink)', marginBottom: '8px' }}>Questions?</h2>
             <p>If you have questions about these terms, contact us.</p>
-            <a href="mailto:hello@adrift-app.com" style={{ display: 'inline-block', marginTop: '12px', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.85rem', background: 'var(--terracotta)', color: 'var(--white)', padding: '10px 20px', borderRadius: '999px', textDecoration: 'none' }}>
-              hello@adrift-app.com
+            <a href="mailto:adriftapplegal@gmail.com" style={{ display: 'inline-block', marginTop: '12px', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.85rem', background: 'var(--terracotta)', color: 'var(--white)', padding: '10px 20px', borderRadius: '999px', textDecoration: 'none' }}>
+              adriftapplegal@gmail.com
             </a>
           </section>
 
