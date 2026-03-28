@@ -37,6 +37,9 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false })
 
   const firstName = user.user_metadata?.full_name?.split(' ')[0] ?? 'Traveler'
+  const initials = user.user_metadata?.full_name
+    ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+    : (user.email?.[0] ?? 'T').toUpperCase()
 
   const allTrips = trips ?? []
   const nextTrip = getNextTrip(allTrips)
@@ -54,12 +57,6 @@ export default async function DashboardPage() {
   return (
     <main style={{ minHeight: '100vh', background: 'var(--sand)', position: 'relative' }}>
 
-      {/* Background texture */}
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E")`
-      }} />
-
       {/* Nav */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 200,
@@ -72,130 +69,143 @@ export default async function DashboardPage() {
         <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em' }}>
           Trip<span style={{ color: 'var(--ink)' }}>Mate</span>
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ fontSize: '0.85rem', color: 'var(--ink-muted)' }}>{user.email}</span>
-          <form action={signOut}>
-            <button style={{
-              fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: '0.82rem',
-              background: 'transparent', border: '1px solid var(--sand-dark)',
-              borderRadius: '8px', padding: '6px 14px', cursor: 'pointer',
-              color: 'var(--ink-soft)'
-            }}>Sign out</button>
-          </form>
-        </div>
-      </nav>
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '900px', margin: '0 auto', padding: '40px 24px' }}>
-
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px' }}>
-          <div>
-            <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2rem', letterSpacing: '-0.03em', color: 'var(--ink)' }}>
-              Hey, {firstName} 👋
-            </h1>
-            <p style={{ color: 'var(--ink-muted)', marginTop: '4px' }}>
-              {allTrips.length === 0 ? 'No trips yet. Time to plan something.' : `You have ${allTrips.length} trip${allTrips.length === 1 ? '' : 's'} planned.`}
-            </p>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Link href="/create" style={{
-            fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.9rem',
+            fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.82rem',
             background: 'var(--terracotta)', color: 'var(--white)',
-            padding: '10px 20px', borderRadius: '12px', textDecoration: 'none',
+            padding: '7px 16px', borderRadius: '999px', textDecoration: 'none',
+            display: 'flex', alignItems: 'center', gap: '6px'
           }}>
             + New trip
           </Link>
+          <form action={signOut} style={{ margin: 0 }}>
+            <button style={{
+              fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: '0.82rem',
+              background: 'transparent', border: '1.5px dashed var(--sand-dark)',
+              borderRadius: '999px', padding: '6px 14px', cursor: 'pointer',
+              color: 'var(--ink-muted)', transition: 'all .2s'
+            }}>Sign out</button>
+          </form>
+          <div style={{
+            width: '34px', height: '34px', borderRadius: '50%',
+            background: 'var(--terracotta)', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', fontSize: '0.72rem', fontWeight: 700,
+            color: 'var(--white)', flexShrink: 0
+          }}>
+            {initials}
+          </div>
+        </div>
+      </nav>
+
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1100px', margin: '0 auto', padding: '40px 24px' }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: '28px' }}>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2.2rem', letterSpacing: '-0.04em', color: 'var(--ink)' }}>
+            Hey, {firstName} 👋
+          </h1>
+          <p style={{ color: 'var(--ink-muted)', marginTop: '4px', fontSize: '0.95rem' }}>
+            {allTrips.length === 0 ? 'No trips yet. Time to plan something.' : `You have ${allTrips.length} trip${allTrips.length === 1 ? '' : 's'} planned.`}
+          </p>
         </div>
 
         {/* Stat Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '32px' }}>
-          <div style={{ background: 'var(--ink)', color: 'var(--sand)', borderRadius: '16px', padding: '18px 22px' }}>
-            <p style={{ fontSize: '0.7rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.55, marginBottom: '7px' }}>Trips planned</p>
-            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.85rem', letterSpacing: '-0.04em', lineHeight: 1 }}>{allTrips.length}</p>
-            <p style={{ fontSize: '0.76rem', opacity: 0.55, marginTop: '5px' }}>total adventures</p>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '32px', alignItems: 'stretch' }}>
+          <div style={{ background: 'var(--ink)', color: 'var(--sand)', borderRadius: '16px', padding: '16px 20px', flex: '1.6' }}>
+            <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.55, marginBottom: '6px' }}>Trips planned</p>
+            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2rem', letterSpacing: '-0.04em', lineHeight: 1 }}>{allTrips.length}</p>
+            <p style={{ fontSize: '0.7rem', opacity: 0.55, marginTop: '4px' }}>total adventures</p>
           </div>
 
-          <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '18px 22px' }}>
-            <p style={{ fontSize: '0.7rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '7px' }}>Next departure</p>
-            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.85rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '16px 20px', flex: 1 }}>
+            <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '6px' }}>Next departure</p>
+            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>
               {daysUntilNext !== null ? daysUntilNext : '—'}
             </p>
-            <p style={{ fontSize: '0.76rem', color: 'var(--ink-muted)', marginTop: '5px' }}>
+            <p style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', marginTop: '4px' }}>
               {nextTrip ? `days · ${nextTrip.destination}` : 'no upcoming trips'}
             </p>
           </div>
 
-          <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '18px 22px' }}>
-            <p style={{ fontSize: '0.7rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '7px' }}>Days traveling</p>
-            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.85rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '16px 20px', flex: 1 }}>
+            <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '6px' }}>Days traveling</p>
+            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>
               {totalDays || '—'}
             </p>
-            <p style={{ fontSize: '0.76rem', color: 'var(--ink-muted)', marginTop: '5px' }}>across all trips</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', marginTop: '4px' }}>across all trips</p>
           </div>
 
-          <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '18px 22px' }}>
-            <p style={{ fontSize: '0.7rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '7px' }}>Total budget</p>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '16px 20px', flex: 1 }}>
+            <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '6px' }}>Total budget</p>
             <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.6rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>
               {totalBudget ? formatBudget(totalBudget, 'USD') : '—'}
             </p>
-            <p style={{ fontSize: '0.76rem', color: 'var(--ink-muted)', marginTop: '5px' }}>planned spend</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', marginTop: '4px' }}>planned spend</p>
           </div>
         </div>
 
         {/* Trips Grid */}
         {allTrips.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-            {allTrips.map(trip => (
-              <Link key={trip.id} href={`/trips/${trip.id}`} style={{ textDecoration: 'none' }}>
-                <div style={{
-                  background: 'var(--card)', border: '1px solid var(--sand-dark)',
-                  borderRadius: '20px', padding: '22px',
-                  backdropFilter: 'blur(8px)',
-                  transition: 'all 0.2s', cursor: 'pointer'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <div>
-                      <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.1rem', color: 'var(--ink)', marginBottom: '4px' }}>
-                        {trip.name}
-                      </h2>
-                      <p style={{ color: 'var(--ink-muted)', fontSize: '0.85rem' }}>📍 {trip.destination}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+            {allTrips.map((trip, i) => {
+              const accentColors = ['var(--terracotta)', 'var(--sage)', 'var(--sky)', 'var(--gold)']
+              const accent = accentColors[i % accentColors.length]
+              return (
+                <Link key={trip.id} href={`/trips/${trip.id}`} style={{ textDecoration: 'none' }}>
+                  <div style={{
+                    background: 'var(--card)', border: '1px solid var(--sand-dark)',
+                    borderRadius: '20px', overflow: 'hidden',
+                    backdropFilter: 'blur(8px)',
+                    transition: 'all 0.2s', cursor: 'pointer',
+                  }}>
+                    <div style={{ height: '4px', background: accent }} />
+                    <div style={{ padding: '20px 22px' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
+                        <div>
+                          <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink)', marginBottom: '4px' }}>
+                            {trip.name}
+                          </h2>
+                          <p style={{ color: 'var(--ink-muted)', fontSize: '0.82rem' }}>📍 {trip.destination}</p>
+                        </div>
+                        <span style={{
+                          fontSize: '0.7rem', fontWeight: 600,
+                          background: 'var(--terra-bg)', color: 'var(--terracotta)',
+                          padding: '4px 10px', borderRadius: '999px', flexShrink: 0
+                        }}>
+                          {trip.travelers} {trip.travelers === 1 ? 'traveler' : 'travelers'}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '14px' }}>
+                        {trip.start_date && (
+                          <span style={{
+                            fontSize: '0.73rem', color: 'var(--ink-muted)',
+                            background: 'var(--sand-mid)', padding: '4px 10px', borderRadius: '999px'
+                          }}>
+                            {formatDate(trip.start_date)}{trip.end_date && ` → ${formatDate(trip.end_date)}`}
+                          </span>
+                        )}
+                        {trip.budget && (
+                          <span style={{
+                            fontSize: '0.73rem', color: 'var(--ink-muted)',
+                            background: 'var(--sand-mid)', padding: '4px 10px', borderRadius: '999px'
+                          }}>
+                            💰 {formatBudget(trip.budget, trip.budget_currency)}
+                          </span>
+                        )}
+                      </div>
+
+                      {trip.notes && (
+                        <p style={{ color: 'var(--ink-muted)', fontSize: '0.78rem', marginTop: '10px', lineHeight: 1.5 }}>
+                          {trip.notes}
+                        </p>
+                      )}
                     </div>
-                    <span style={{
-                      fontSize: '0.72rem', fontWeight: 600,
-                      background: 'var(--terra-bg)', color: 'var(--terracotta)',
-                      padding: '4px 10px', borderRadius: '999px'
-                    }}>
-                      {trip.travelers} {trip.travelers === 1 ? 'traveler' : 'travelers'}
-                    </span>
                   </div>
-
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}>
-                    {trip.start_date && (
-                      <span style={{
-                        fontSize: '0.75rem', color: 'var(--ink-muted)',
-                        background: 'var(--sand-mid)', padding: '4px 10px', borderRadius: '999px'
-                      }}>
-                        {formatDate(trip.start_date)}
-                        {trip.end_date && ` → ${formatDate(trip.end_date)}`}
-                      </span>
-                    )}
-                    {trip.budget && (
-                      <span style={{
-                        fontSize: '0.75rem', color: 'var(--ink-muted)',
-                        background: 'var(--sand-mid)', padding: '4px 10px', borderRadius: '999px'
-                      }}>
-                        💰 {formatBudget(trip.budget, trip.budget_currency)}
-                      </span>
-                    )}
-                  </div>
-
-                  {trip.notes && (
-                    <p style={{ color: 'var(--ink-muted)', fontSize: '0.8rem', marginTop: '12px' }}>
-                      {trip.notes}
-                    </p>
-                  )}
-                </div>
-              </Link>
-            ))}
+                </Link>
+              )
+            })}
           </div>
         ) : (
           <div style={{
@@ -210,7 +220,7 @@ export default async function DashboardPage() {
             <Link href="/create" style={{
               fontFamily: 'Syne, sans-serif', fontWeight: 700,
               background: 'var(--terracotta)', color: 'var(--white)',
-              padding: '12px 28px', borderRadius: '12px', textDecoration: 'none'
+              padding: '12px 28px', borderRadius: '999px', textDecoration: 'none'
             }}>
               Plan your first trip
             </Link>
