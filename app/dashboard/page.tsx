@@ -90,14 +90,16 @@ export default async function DashboardPage() {
               sign out
             </button>
           </form>
-          <div style={{
-            width: '34px', height: '34px', borderRadius: '50%',
-            background: 'var(--terracotta)', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', fontSize: '0.72rem', fontWeight: 700,
-            color: 'var(--white)', flexShrink: 0,
-          }}>
-            {initials}
-          </div>
+         <a href="/account" style={{ textDecoration: 'none' }}>
+  <div style={{
+    width: '34px', height: '34px', borderRadius: '50%',
+    background: 'var(--terracotta)', display: 'flex', alignItems: 'center',
+    justifyContent: 'center', fontSize: '0.72rem', fontWeight: 700,
+    color: 'var(--white)', flexShrink: 0, cursor: 'pointer',
+  }}>
+    {initials}
+  </div>
+</a>
         </div>
       </nav>
 
