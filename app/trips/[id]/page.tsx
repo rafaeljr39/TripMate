@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import CopyInviteButton from '@/components/copy-invite-button'
 import TripTimeline from '@/components/trip-timeline'
+import TripCalendar from '@/components/trip-calendar'
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return null
@@ -54,13 +55,11 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
   return (
     <main style={{ minHeight: '100vh', background: 'var(--sand)', position: 'relative' }}>
 
-      {/* Background texture */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E")`
       }} />
 
-      {/* Nav */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 200,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -82,18 +81,14 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '900px', margin: '0 auto', padding: '40px 24px' }}>
 
-        {/* Trip Header */}
         <div style={{ marginBottom: '28px' }}>
           <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2.2rem', letterSpacing: '-0.03em', color: 'var(--ink)', marginBottom: '6px' }}>
             {trip.name}
           </h1>
           <p style={{ color: 'var(--ink-muted)', fontSize: '1rem', marginBottom: '20px' }}>📍 {trip.destination}</p>
-
-          {/* Invite Bar */}
           <CopyInviteButton inviteUrl={inviteUrl} compact memberCount={members?.length ?? 0} />
         </div>
 
-        {/* Stat Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '32px' }}>
           {trip.start_date && (
             <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '18px 22px' }}>
@@ -146,7 +141,8 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
           )}
         </div>
 
-        {/* Activities */}
+        <TripCalendar activities={activities ?? []} trip={trip} />
+
         <TripTimeline activities={activities ?? []} tripId={id} />
 
       </div>
