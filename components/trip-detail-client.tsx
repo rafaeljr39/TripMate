@@ -390,7 +390,7 @@ export default function TripDetailClient({
                                   <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.85rem', color: 'var(--ink)' }}>
                                     {a.title}
                                     {a.confirmation_code && (
-                                      <span style={{ fontSize: '0.6rem', fontWeight: 700, background: 'var(--sage-bg)', color: 'var(--sage)', padding: '1px 6px', borderRadius: '99px', marginLeft: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Confirmed</span>
+                
                                     )}
                                   </p>
                                   {a.location && <p style={{ fontSize: '0.72rem', opacity: 0.6, marginTop: '2px' }}>{a.location}</p>}
