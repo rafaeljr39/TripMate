@@ -87,8 +87,7 @@ export default async function DashboardPage() {
               color: 'var(--ink-muted)', transition: 'all .2s',
               whiteSpace: 'nowrap',
             }}>
-              <span className="nav-signout-text">Sign out</span>
-              <span style={{ display: 'none' }} className="nav-signout-icon">↗</span>
+              sign out
             </button>
           </form>
           <div style={{
