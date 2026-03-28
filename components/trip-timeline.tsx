@@ -3,13 +3,8 @@
 import { useState } from 'react'
 
 const TYPE_ICONS = {
-  flight: '✈️',
-  hotel: '🏨',
-  tour: '🗺️',
-  restaurant: '🍽️',
-  transport: '🚌',
-  activity: '🎯',
-  other: '📌',
+  flight: '✈️', hotel: '🏨', tour: '🗺️',
+  restaurant: '🍽️', transport: '🚌', activity: '🎯', other: '📌',
 }
 
 function formatTime(dateStr) {
@@ -18,11 +13,7 @@ function formatTime(dateStr) {
 }
 
 function formatDayHeader(dateStr) {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  })
+  return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 }
 
 function ActivityCard({ activity, tripId, showTime }) {
@@ -34,40 +25,22 @@ function ActivityCard({ activity, tripId, showTime }) {
     : null
 
   return (
-    <div className="bg-white/5 border border-white/8 rounded-2xl p-5">
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-3">
-          <span className="text-2xl">{icon}</span>
+    <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '18px 22px' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <span style={{ fontSize: '1.5rem' }}>{icon}</span>
           <div>
-            <h3 className="font-semibold">{activity.title}</h3>
-            {activity.location && (
-              <p className="text-white/50 text-sm">📍 {activity.location}</p>
-            )}
-            {showTime && activity.start_time && (
-              <p className="text-white/40 text-xs mt-1">{formatTime(activity.start_time)}</p>
-            )}
-            {activity.notes && (
-              <p className="text-white/30 text-sm mt-1">{activity.notes}</p>
-            )}
+            <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: 'var(--ink)', marginBottom: '3px' }}>{activity.title}</h3>
+            {activity.location && <p style={{ color: 'var(--ink-muted)', fontSize: '0.8rem' }}>📍 {activity.location}</p>}
+            {showTime && activity.start_time && <p style={{ color: 'var(--ink-muted)', fontSize: '0.75rem', marginTop: '3px' }}>{formatTime(activity.start_time)}</p>}
+            {activity.notes && <p style={{ color: 'var(--ink-muted)', fontSize: '0.78rem', marginTop: '6px' }}>{activity.notes}</p>}
           </div>
         </div>
-        <div className="flex items-start gap-2">
-          {price && (
-            <p className="text-sm font-semibold mr-1">{price}</p>
-          )}
-          <a
-            href={shareHref}
-            target="_blank"
-            className="text-white/30 hover:text-white text-xs border border-white/10 rounded-lg px-2.5 py-1.5 transition"
-          >
-            Share
-          </a>
-          <a
-            href={editHref}
-            className="text-white/30 hover:text-white text-xs border border-white/10 rounded-lg px-2.5 py-1.5 transition"
-          >
-            Edit
-          </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          {price && <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.9rem', color: 'var(--terracotta)' }}>{price}</span>}
+          {activity.confirmation_code && <span style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', background: 'var(--sand-mid)', padding: '3px 8px', borderRadius: '999px' }}>#{activity.confirmation_code}</span>}
+          <a href={shareHref} target="_blank" style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', border: '1px solid var(--sand-dark)', borderRadius: '8px', padding: '4px 10px', textDecoration: 'none', fontWeight: 500 }}>Share</a>
+          <a href={editHref} style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', border: '1px solid var(--sand-dark)', borderRadius: '8px', padding: '4px 10px', textDecoration: 'none', fontWeight: 500 }}>Edit</a>
         </div>
       </div>
     </div>
@@ -93,98 +66,66 @@ export default function TripTimeline({ activities, tripId }) {
   const sortedDays = Object.keys(grouped).sort()
   const extractHref = '/trips/' + tripId + '/activities/extract'
 
-  const listBtnClass = view === 'list'
-    ? 'text-xs px-3 py-1.5 rounded-lg transition font-medium bg-white text-black'
-    : 'text-xs px-3 py-1.5 rounded-lg transition font-medium text-white/40 hover:text-white'
-
-  const timelineBtnClass = view === 'timeline'
-    ? 'text-xs px-3 py-1.5 rounded-lg transition font-medium bg-white text-black'
-    : 'text-xs px-3 py-1.5 rounded-lg transition font-medium text-white/40 hover:text-white'
+  const tabBase = { fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: '0.78rem', padding: '5px 14px', borderRadius: '8px', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }
+  const activeTab = { ...tabBase, background: 'var(--white)', color: 'var(--ink)' }
+  const inactiveTab = { ...tabBase, background: 'transparent', color: 'var(--ink-soft)' }
+  const addBtnStyle = { fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.82rem', background: 'var(--terracotta)', color: 'var(--white)', padding: '7px 16px', borderRadius: '999px', textDecoration: 'none' }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold">
-          Activities
-          {activities.length > 0 && (
-            <span className="text-white/30 font-normal text-base ml-2">{activities.length}</span>
-          )}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+        <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.3rem', color: 'var(--ink)' }}>
+          Activities{activities.length > 0 && <span style={{ fontWeight: 400, fontSize: '1rem', color: 'var(--ink-muted)', marginLeft: '8px' }}>{activities.length}</span>}
         </h2>
-        <div className="flex items-center gap-2">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {activities.length > 0 && (
-            <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 gap-1">
-              <button onClick={() => setView('list')} className={listBtnClass}>
-                List
-              </button>
-              <button onClick={() => setView('timeline')} className={timelineBtnClass}>
-                Timeline
-              </button>
+            <div style={{ display: 'flex', background: 'var(--sand-dark)', borderRadius: '10px', padding: '3px', gap: '2px' }}>
+              <button onClick={() => setView('list')} style={view === 'list' ? activeTab : inactiveTab}>List</button>
+              <button onClick={() => setView('timeline')} style={view === 'timeline' ? activeTab : inactiveTab}>Timeline</button>
             </div>
           )}
-          <a
-            href={extractHref}
-            className="bg-white text-black text-sm font-semibold px-4 py-2 rounded-xl hover:bg-white/90 transition"
-          >
-            + Add activity
-          </a>
+          <a href={extractHref} style={addBtnStyle}>+ Add activity</a>
         </div>
       </div>
 
       {activities.length === 0 && (
-        <div className="border border-dashed border-white/10 rounded-2xl p-16 text-center">
-          <p className="text-4xl mb-4">🗺️</p>
-          <h3 className="text-lg font-semibold mb-2">No activities yet</h3>
-          <p className="text-white/40 text-sm mb-6">
-            Upload a confirmation screenshot to add your first activity.
-          </p>
-          <a
-            href={extractHref}
-            className="bg-white text-black text-sm font-semibold px-6 py-3 rounded-xl hover:bg-white/90 transition inline-block"
-          >
-            📸 Scan confirmation
-          </a>
+        <div style={{ border: '2px dashed var(--sand-dark)', borderRadius: '16px', padding: '48px 32px', textAlign: 'center' }}>
+          <p style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🗺️</p>
+          <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.1rem', color: 'var(--ink)', marginBottom: '8px' }}>No activities yet</h3>
+          <p style={{ color: 'var(--ink-muted)', fontSize: '0.85rem', marginBottom: '20px' }}>Upload a confirmation screenshot to add your first activity.</p>
+          <a href={extractHref} style={addBtnStyle}>📸 Scan confirmation</a>
         </div>
       )}
 
       {view === 'list' && activities.length > 0 && (
-        <div className="space-y-3">
-          {activities.map((activity) => (
-            <ActivityCard key={activity.id} activity={activity} tripId={tripId} />
-          ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {activities.map((activity) => <ActivityCard key={activity.id} activity={activity} tripId={tripId} />)}
         </div>
       )}
 
       {view === 'timeline' && activities.length > 0 && (
-        <div className="space-y-8">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
           {sortedDays.map((day) => (
             <div key={day}>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-px flex-1 bg-white/8" />
-                <p className="text-white/40 text-xs font-medium uppercase tracking-wider whitespace-nowrap">
-                  {formatDayHeader(day)}
-                </p>
-                <div className="h-px flex-1 bg-white/8" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
+                <div style={{ height: '1px', flex: 1, background: 'var(--sand-dark)' }} />
+                <p style={{ color: 'var(--ink-muted)', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>{formatDayHeader(day)}</p>
+                <div style={{ height: '1px', flex: 1, background: 'var(--sand-dark)' }} />
               </div>
-              <div className="space-y-3">
-                {grouped[day].map((activity) => (
-                  <ActivityCard key={activity.id} activity={activity} tripId={tripId} showTime />
-                ))}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {grouped[day].map((activity) => <ActivityCard key={activity.id} activity={activity} tripId={tripId} showTime />)}
               </div>
             </div>
           ))}
           {noDate.length > 0 && (
             <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-px flex-1 bg-white/8" />
-                <p className="text-white/40 text-xs font-medium uppercase tracking-wider whitespace-nowrap">
-                  No date set
-                </p>
-                <div className="h-px flex-1 bg-white/8" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
+                <div style={{ height: '1px', flex: 1, background: 'var(--sand-dark)' }} />
+                <p style={{ color: 'var(--ink-muted)', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>No date set</p>
+                <div style={{ height: '1px', flex: 1, background: 'var(--sand-dark)' }} />
               </div>
-              <div className="space-y-3">
-                {noDate.map((activity) => (
-                  <ActivityCard key={activity.id} activity={activity} tripId={tripId} />
-                ))}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {noDate.map((activity) => <ActivityCard key={activity.id} activity={activity} tripId={tripId} />)}
               </div>
             </div>
           )}

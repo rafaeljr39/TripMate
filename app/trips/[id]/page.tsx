@@ -51,95 +51,102 @@ export default async function TripDetailPage({ params }: { params: Promise<{ id:
   const totalSpent = activities?.reduce((sum, a) => sum + (a.price ?? 0), 0) ?? 0
   const inviteUrl = `https://trip-mate-delta.vercel.app/invite/${trip.invite_token}`
 
-  const initials = user.user_metadata?.full_name
-    ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-    : user.email?.[0].toUpperCase() ?? '?'
-
   return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white">
-      <nav className="border-b border-white/8 px-6 py-4 flex items-center justify-between">
-        <Link href="/dashboard" className="text-sm text-white/40 hover:text-white transition">
-          ← Back to trips
+    <main style={{ minHeight: '100vh', background: 'var(--sand)', position: 'relative' }}>
+
+      {/* Background texture */}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E")`
+      }} />
+
+      {/* Nav */}
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 200,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '14px 32px',
+        background: 'rgba(245,239,224,0.93)',
+        backdropFilter: 'blur(14px)',
+        borderBottom: '1px solid var(--sand-dark)'
+      }}>
+        <Link href="/dashboard" style={{ fontSize: '0.85rem', color: 'var(--ink-muted)', textDecoration: 'none', fontWeight: 500 }}>
+          ← Back
         </Link>
-        <span className="font-bold text-lg tracking-tight">TripMate</span>
-        <Link href={`/trips/${id}/edit`} className="text-sm text-white/40 hover:text-white transition">
+        <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em' }}>
+          Trip<span style={{ color: 'var(--ink)' }}>Mate</span>
+        </span>
+        <Link href={`/trips/${id}/edit`} style={{ fontSize: '0.85rem', color: 'var(--ink-muted)', textDecoration: 'none', fontWeight: 500 }}>
           Edit
         </Link>
       </nav>
 
-      <div className="max-w-3xl mx-auto px-6 py-12">
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '900px', margin: '0 auto', padding: '40px 24px' }}>
 
         {/* Trip Header */}
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight">{trip.name}</h1>
-            <div className="flex items-center gap-2">
-              <CopyInviteButton inviteUrl={inviteUrl} compact />
-              <div className="flex items-center">
-                <div
-                  style={{ background: '#C4552A' }}
-                  className="w-7 h-7 rounded-full border-2 border-[#0f0f0f] flex items-center justify-center text-xs font-bold text-white"
-                >
-                  {initials}
-                </div>
-                {members && members.length > 0 && (
-                  <div className="w-7 h-7 rounded-full border-2 border-[#0f0f0f] bg-white/20 flex items-center justify-center text-xs font-bold text-white -ml-2">
-                    +{members.length}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <p className="text-white/50 text-lg">📍 {trip.destination}</p>
+        <div style={{ marginBottom: '28px' }}>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2.2rem', letterSpacing: '-0.03em', color: 'var(--ink)', marginBottom: '6px' }}>
+            {trip.name}
+          </h1>
+          <p style={{ color: 'var(--ink-muted)', fontSize: '1rem', marginBottom: '20px' }}>📍 {trip.destination}</p>
+
+          {/* Invite Bar */}
+          <CopyInviteButton inviteUrl={inviteUrl} compact memberCount={members?.length ?? 0} />
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-12">
+        {/* Stat Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '32px' }}>
           {trip.start_date && (
-            <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
-              <p className="text-white/40 text-xs mb-1">Departure</p>
-              <p className="font-semibold text-sm">{formatDate(trip.start_date)}</p>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '18px 22px' }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '7px' }}>Departure</p>
+              <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)' }}>{formatDate(trip.start_date)}</p>
             </div>
           )}
           {trip.end_date && (
-            <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
-              <p className="text-white/40 text-xs mb-1">Return</p>
-              <p className="font-semibold text-sm">{formatDate(trip.end_date)}</p>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '18px 22px' }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '7px' }}>Return</p>
+              <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)' }}>{formatDate(trip.end_date)}</p>
             </div>
           )}
           {days && (
-            <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
-              <p className="text-white/40 text-xs mb-1">Duration</p>
-              <p className="font-semibold text-sm">{days} days</p>
-            </div>
-          )}
-          <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
-            <p className="text-white/40 text-xs mb-1">Travelers</p>
-            <p className="font-semibold text-sm">{trip.travelers} {trip.travelers === 1 ? 'person' : 'people'}</p>
-          </div>
-          {trip.budget && (
-            <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
-              <p className="text-white/40 text-xs mb-1">Budget</p>
-              <p className="font-semibold text-sm">{formatBudget(trip.budget, trip.budget_currency)}</p>
-            </div>
-          )}
-          {trip.budget && totalSpent > 0 && (
-            <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
-              <p className="text-white/40 text-xs mb-1">Spent</p>
-              <p className={`font-semibold text-sm ${totalSpent > trip.budget ? 'text-red-400' : 'text-green-400'}`}>
-                {formatBudget(totalSpent, trip.budget_currency)}
+            <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '18px 22px' }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '7px' }}>Duration</p>
+              <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.85rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>
+                {days}<span style={{ fontSize: '0.9rem', fontWeight: 500, marginLeft: '4px' }}>days</span>
               </p>
             </div>
           )}
+          <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '18px 22px' }}>
+            <p style={{ fontSize: '0.7rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '7px' }}>Travelers</p>
+            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.85rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>{trip.travelers}</p>
+          </div>
+          {trip.budget && (
+            <div style={{ background: 'var(--ink)', color: 'var(--sand)', borderRadius: '16px', padding: '18px 22px' }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.55, marginBottom: '7px' }}>Budget</p>
+              <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.4rem', letterSpacing: '-0.04em', lineHeight: 1 }}>
+                {formatBudget(trip.budget, trip.budget_currency)}
+              </p>
+              {totalSpent > 0 && (
+                <div>
+                  <div style={{ height: '4px', background: 'rgba(245,239,224,0.2)', borderRadius: '99px', overflow: 'hidden', marginTop: '10px' }}>
+                    <div style={{ height: '100%', borderRadius: '99px', background: totalSpent > trip.budget ? '#E8835A' : '#F0B84A', width: `${Math.min((totalSpent / trip.budget) * 100, 100)}%` }} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginTop: '5px', opacity: 0.55 }}>
+                    <span>Spent: {formatBudget(totalSpent, trip.budget_currency)}</span>
+                    <span>{Math.round((totalSpent / trip.budget) * 100)}%</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           {trip.notes && (
-            <div className="bg-white/5 border border-white/8 rounded-2xl p-4 col-span-2">
-              <p className="text-white/40 text-xs mb-1">Notes</p>
-              <p className="text-sm text-white/70">{trip.notes}</p>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '18px 22px', gridColumn: 'span 2' }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '7px' }}>Notes</p>
+              <p style={{ color: 'var(--ink-soft)', fontSize: '0.85rem' }}>{trip.notes}</p>
             </div>
           )}
         </div>
 
-        {/* Timeline Component */}
+        {/* Activities */}
         <TripTimeline activities={activities ?? []} tripId={id} />
 
       </div>

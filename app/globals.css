@@ -1,26 +1,45 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --sand: #F5EFE0;
+  --sand-dark: #EDE3CC;
+  --sand-mid: #E8DFC8;
+  --ink: #1A1714;
+  --ink-soft: #3D3730;
+  --ink-muted: #7A6F65;
+  --terracotta: #C4552A;
+  --terra-light: #E8835A;
+  --terra-bg: rgba(196, 85, 42, 0.07);
+  --sage: #4A6741;
+  --sage-light: #7A9E6F;
+  --sage-bg: rgba(74, 103, 65, 0.08);
+  --sky: #3A6B8A;
+  --sky-light: #6B9DB8;
+  --sky-bg: rgba(58, 107, 138, 0.08);
+  --gold: #C9922A;
+  --gold-light: #F0B84A;
+  --gold-bg: rgba(201, 146, 42, 0.08);
+  --white: #FDFAF4;
+  --card: rgba(253, 250, 244, 0.9);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--sand);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Syne', sans-serif;
 }
