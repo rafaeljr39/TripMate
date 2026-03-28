@@ -1,18 +1,18 @@
 'use client'
 
-function getDaysInMonth(year, month) {
+function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate()
 }
 
-function getFirstDayOfMonth(year, month) {
+function getFirstDayOfMonth(year: number, month: number) {
   return new Date(year, month, 1).getDay()
 }
 
-function formatMonthYear(year, month) {
+function formatMonthYear(year: number, month: number) {
   return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 }
 
-function isBetween(dateStr, startStr, endStr) {
+function isBetween(dateStr: string, startStr: string, endStr: string) {
   if (!dateStr || !startStr || !endStr) return false
   const d = new Date(dateStr)
   const s = new Date(startStr)
@@ -20,16 +20,16 @@ function isBetween(dateStr, startStr, endStr) {
   return d >= s && d <= e
 }
 
-function isSameDay(dateStr, targetStr) {
+function isSameDay(dateStr: string, targetStr: string) {
   if (!dateStr || !targetStr) return false
   return dateStr.slice(0, 10) === targetStr.slice(0, 10)
 }
 
-function toDateStr(year, month, day) {
+function toDateStr(year: number, month: number, day: number) {
   return year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0')
 }
 
-export default function TripCalendar({ activities, trip }) {
+export default function TripCalendar({ activities, trip }: { activities: any[], trip: any }) {
   if (!trip.start_date || !trip.end_date) return null
 
   const tripStart = new Date(trip.start_date)
@@ -43,7 +43,7 @@ export default function TripCalendar({ activities, trip }) {
   const endMonth = tripEnd.getMonth()
   const endYear = tripEnd.getFullYear()
 
-  const months = []
+  const months: { year: number, month: number }[] = []
   let m = startMonth
   let y = startYear
   while (y < endYear || (y === endYear && m <= endMonth)) {
@@ -52,7 +52,7 @@ export default function TripCalendar({ activities, trip }) {
     if (m > 11) { m = 0; y++ }
   }
 
-  const gapDays = []
+  const gapDays: string[] = []
   const current = new Date(trip.start_date)
   const end = new Date(trip.end_date)
   while (current <= end) {
@@ -86,7 +86,7 @@ export default function TripCalendar({ activities, trip }) {
         {months.map(({ year, month }) => {
           const daysInMonth = getDaysInMonth(year, month)
           const firstDay = getFirstDayOfMonth(year, month)
-          const cells = []
+          const cells: (number | null)[] = []
 
           for (let i = 0; i < firstDay; i++) {
             cells.push(null)
