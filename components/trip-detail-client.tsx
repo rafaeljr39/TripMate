@@ -326,13 +326,14 @@ export default function TripDetailClient({
                           }}
                         >
                           {day}
-                          {dayActivities.length > 0 && !isSelected && (
-                            <div style={{ display: 'flex', gap: '2px', position: 'absolute', bottom: '3px' }}>
-                              {dayActivities.slice(0, 3).map((_, di) => (
-                                <div key={di} style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'currentColor', opacity: 0.6 }} />
-                              ))}
-                            </div>
-                          )}
+                         {dayActivities.length > 0 && !isSelected && (
+  <div style={{
+    position: 'absolute', bottom: '4px',
+    width: '5px', height: '5px', borderRadius: '50%',
+    background: (hasHotel || hasFlight) ? 'rgba(255,255,255,0.75)' : 'var(--gold)',
+    boxShadow: (hasHotel || hasFlight) ? 'none' : '0 0 0 1.5px rgba(201,146,42,0.3)',
+  }} />
+)}
                         </div>
                       )
                     })}
