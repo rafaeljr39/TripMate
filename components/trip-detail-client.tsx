@@ -567,7 +567,7 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                 })()}
               </div>
             )}
-
+</div>
           {/* RIGHT SIDEBAR */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
