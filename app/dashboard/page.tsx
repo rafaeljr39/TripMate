@@ -118,35 +118,27 @@ export default async function DashboardPage() {
         {/* Stat Cards */}
         <div className="dash-stat-bar">
           <div style={{ background: 'var(--ink)', color: 'var(--sand)', borderRadius: '16px', padding: '16px 20px', flex: '1.6' }}>
-            <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.55, marginBottom: '6px' }}>Trips planned</p>
-            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2rem', letterSpacing: '-0.04em', lineHeight: 1 }}>{allTrips.length}</p>
-            <p style={{ fontSize: '0.7rem', opacity: 0.55, marginTop: '4px' }}>total adventures</p>
+            <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.55, marginBottom: '6px' }}>Total budget</p>
+            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.6rem', letterSpacing: '-0.04em', lineHeight: 1 }}>
+              {totalBudget ? formatBudget(totalBudget, 'USD') : '—'}
+            </p>
+            <p style={{ fontSize: '0.7rem', opacity: 0.55, marginTop: '4px' }}>planned spend</p>
           </div>
 
           <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '16px 20px', flex: 1 }}>
-            <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '6px' }}>Next departure</p>
+            <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '6px' }}>Trips planned</p>
+            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>{allTrips.length}</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', marginTop: '4px' }}>total adventures</p>
+          </div>
+
+          <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '16px 20px', flex: 1 }}>
+            <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '6px' }}>Next departure in</p>
             <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>
               {daysUntilNext !== null ? daysUntilNext : '—'}
             </p>
             <p style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', marginTop: '4px' }}>
               {nextTrip ? `days · ${nextTrip.destination}` : 'no upcoming trips'}
             </p>
-          </div>
-
-          <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '16px 20px', flex: 1 }}>
-            <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '6px' }}>Days traveling</p>
-            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '2rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>
-              {totalDays || '—'}
-            </p>
-            <p style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', marginTop: '4px' }}>across all trips</p>
-          </div>
-
-          <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '16px', padding: '16px 20px', flex: 1 }}>
-            <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)', marginBottom: '6px' }}>Total budget</p>
-            <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.6rem', letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)' }}>
-              {totalBudget ? formatBudget(totalBudget, 'USD') : '—'}
-            </p>
-            <p style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', marginTop: '4px' }}>planned spend</p>
           </div>
         </div>
 
