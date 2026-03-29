@@ -76,6 +76,8 @@ IMPORTANT FOR HOTELS:
 - Example: if check-in is July 22 and check-out is July 25, use "2026-07-22T12:00:00" and "2026-07-25T12:00:00"
 - This ensures the hotel spans the correct days on the calendar
 
+IMPORTANT FOR DATES: Always use future dates. If a year is ambiguous, use the next upcoming year from today. Never extract a date in the past unless explicitly stated.
+
 Return ONLY the JSON object. No explanation, no markdown, no backticks.`,
             },
           ],
