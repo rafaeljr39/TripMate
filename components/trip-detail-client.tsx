@@ -547,7 +547,7 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                       <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {filtered.length === 0 ? (
                           <p style={{ fontSize: '0.82rem', color: 'var(--ink-muted)', textAlign: 'center', padding: '24px 0' }}>No {bookingTypeFilter} bookings yet</p>
-                        ) : filtered.map(a => <ActivityCard key={a.id} activity={a} tripId={tripId} displayCurrency={displayCurrency} convertToDisplay={convertToDisplay} />)
+                        ) : filtered.map(a => <ActivityCard key={a.id} activity={a} tripId={tripId} displayCurrency={displayCurrency} convertToDisplay={convertToDisplay} />)}
                       </div>
                       {/* Totals bar */}
                       <div style={{ padding: '12px 18px', borderTop: '1px solid var(--sand-dark)', background: 'var(--sand)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
