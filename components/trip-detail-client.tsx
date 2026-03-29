@@ -453,8 +453,7 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
             {/* BOOKINGS TAB */}
             {activeTab === 'bookings' && (
               <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '20px', overflow: 'hidden' }}>
-                <div style={{ padding: '16px 22px', borderBottom: '1px solid var(--sand-dark)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink)' }}>All Bookings</p>
+<div className="bookings-header">                  <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink)' }}>All Bookings</p>
                   <div style={{ display: 'flex', gap: '3px', background: 'var(--sand-dark)', borderRadius: '9px', padding: '3px' }}>
                     {(['list', 'timeline'] as const).map(v => (
                       <button key={v} onClick={() => setBookingsView(v)} style={{
