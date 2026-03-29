@@ -75,7 +75,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
         {/* Brand */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-muted)', marginBottom: '6px' }}>You're invited</p>
-          <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em' }}>
+          <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>
             Adrift          </p>
         </div>
 
@@ -83,7 +83,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
         <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '20px', overflow: 'hidden', marginBottom: '14px', boxShadow: '0 2px 16px rgba(26,23,20,0.08)' }}>
           <div style={{ background: 'var(--ink)', color: 'var(--sand)', padding: '20px 24px' }}>
             <p style={{ fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.5, marginBottom: '6px' }}>Trip</p>
-            <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.6rem', letterSpacing: '-0.03em' }}>{trip.name}</h1>
+            <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.6rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>{trip.name}</h1>
             <p style={{ fontSize: '0.85rem', opacity: 0.6, marginTop: '4px' }}>📍 {trip.destination}</p>
           </div>
           <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>

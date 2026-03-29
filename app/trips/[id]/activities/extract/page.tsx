@@ -177,7 +177,7 @@ export default function ExtractActivityPage({ params }: { params: Promise<{ id: 
         backdropFilter: 'blur(14px)',
         borderBottom: '1px solid var(--sand-dark)',
       }}>
-        <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em' }}>
+        <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>
           Adrift        </span>
         <a href={`/trips/${tripId}`} style={{
           fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.82rem',

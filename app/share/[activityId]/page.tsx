@@ -82,7 +82,7 @@ export default function ShareActivityPage({ params }: { params: Promise<{ activi
         {/* Brand */}
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-muted)', marginBottom: '6px' }}>Shared via</p>
-          <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em' }}>
+          <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>
             Adrift          </p>
         </div>
 

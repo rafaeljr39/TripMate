@@ -67,7 +67,7 @@ export default async function DashboardPage() {
         backdropFilter: 'blur(14px)',
         borderBottom: '1px solid var(--sand-dark)',
       }}>
-        <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em', flexShrink: 0 }}>
+        <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '0.05em', textTransform: 'uppercase' as const, flexShrink: 0 }}>
           Adrift        </span>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

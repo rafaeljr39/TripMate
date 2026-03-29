@@ -88,7 +88,7 @@ export default function CreateTripPage() {
           fontWeight: 800,
           fontSize: '1.35rem',
           color: 'var(--terracotta)',
-          letterSpacing: '-0.03em',
+          letterSpacing: '0.05em', textTransform: 'uppercase' as const,
         }}>
           Adrift        </span>
         <a href="/dashboard" style={{

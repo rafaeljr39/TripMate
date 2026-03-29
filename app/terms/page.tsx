@@ -9,7 +9,7 @@ export default function TermsPage() {
         backdropFilter: 'blur(14px)',
         borderBottom: '1px solid var(--sand-dark)',
       }}>
-        <a href="/" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '-0.03em', textDecoration: 'none' }}>
+        <a href="/" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: 'var(--terracotta)', letterSpacing: '0.05em', textTransform: 'uppercase' as const, textDecoration: 'none' }}>
           Adrift
         </a>
         <a href="/" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.82rem', background: 'var(--ink)', color: 'var(--sand)', padding: '7px 16px', borderRadius: '999px', textDecoration: 'none' }}>
