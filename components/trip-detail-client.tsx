@@ -617,7 +617,7 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                  ) : Object.entries(budgetByType).map(([type, amount]) => {
                     const pct = trip.budget ? Math.min((amount / trip.budget) * 100, 100) : 0
                     const color = TYPE_COLORS[type] ?? 'var(--ink-muted)'
-                    const isActive = bookingTypeFilter === type && activeTab === 'bookings'
+                    const isActive = false
                     return (
                       <div key={type} onClick={() => { setBookingTypeFilter(type); setActiveTab('bookings') }}
                         style={{ cursor: 'pointer', borderRadius: '8px', padding: '4px', margin: '-4px', transition: 'background .15s', background: isActive ? 'var(--sand)' : 'transparent' }}
