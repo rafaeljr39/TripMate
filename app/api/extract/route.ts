@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const { base64, mediaType } = await request.json()
 
     const response = await client.messages.create({
-      model: 'claude-opus-4-5',
+      model: 'claude-sonnet-4-5',
       max_tokens: 1024,
       messages: [
         {
