@@ -154,7 +154,7 @@ export default function TripDetailClient({
     ? activities.filter(a => a.start_time && a.start_time.slice(0, 10) === selectedDay)
         .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
     : []
-  const selectedDayTotal = selectedDayActivities.reduce((sum, a) => sum + (a.price ?? 0), 0)
+  const selectedDayTotal = selectedDayActivities.reduce((sum, a) => sum + convertToDisplay(a.price ?? 0, a.currency ?? 'USD'), 0)
 
   function handleCopyInvite() {
     navigator.clipboard.writeText(inviteUrl)
