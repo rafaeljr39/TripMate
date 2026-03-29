@@ -633,7 +633,10 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                         <p style={{ fontSize: '0.65rem', color: 'var(--terracotta)', marginTop: '3px', opacity: isActive ? 1 : 0, transition: 'opacity .15s' }}>View in bookings →</p>
                       </div>
                     )
-                  })}
+                   })}
+                </div>
+              </div>
+            )}
 
             {/* Invite Travel Buddy */}
             <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '18px', overflow: 'hidden' }}>
