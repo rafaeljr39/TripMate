@@ -4,21 +4,18 @@ import { createClient } from '@/lib/supabase/server'
 
 const client = new Anthropic()
 
-// Simple in-memory rate limiter — resets on server restart
 const rateLimitMap = new Map<string, { count: number, resetAt: number }>()
-const MAX_REQUESTS = 20 // per user per day
-const WINDOW_MS = 24 * 60 * 60 * 1000 // 24 hours
+const MAX_REQUESTS = 20
+const WINDOW_MS = 24 * 60 * 60 * 1000
 
 export async function POST(request: Request) {
   try {
-    // Auth check
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Rate limiting
     const now = Date.now()
     const userLimit = rateLimitMap.get(user.id)
 
@@ -39,6 +36,7 @@ export async function POST(request: Request) {
     }
 
     const { base64, mediaType } = await request.json()
+    const today = new Date().toISOString().slice(0, 10)
 
     const response = await client.messages.create({
       model: 'claude-sonnet-4-5',
@@ -58,25 +56,27 @@ export async function POST(request: Request) {
             {
               type: 'text',
               text: `You are extracting travel booking details from a confirmation screenshot.
+Today's date is ${today}. All extracted dates must be in the future relative to today.
+
 Extract all available details and return ONLY a JSON object with these fields:
 
 - type: one of "flight", "hotel", "tour", "restaurant", "transport", "activity", "other"
 - title: short descriptive title (e.g. "Flight to Tokyo", "HI Brussels Hostel", "El Clasico Match")
 - location: venue, address, airport, or hotel address
-- start_time: for HOTELS and ACCOMMODATION use date only in format "YYYY-MM-DDT12:00:00" (check-in date, set time to 12:00). For FLIGHTS and EVENTS use full ISO 8601 datetime (e.g. "2026-04-20T14:30:00")
-- end_time: for HOTELS and ACCOMMODATION use date only in format "YYYY-MM-DDT12:00:00" (check-out date, set time to 12:00). For FLIGHTS and EVENTS use full ISO 8601 datetime if available
+- start_time: for HOTELS use check-in date in format "YYYY-MM-DDT12:00:00". For FLIGHTS and EVENTS use full ISO 8601 datetime. If no date is visible, return null.
+- end_time: for HOTELS use check-out date in format "YYYY-MM-DDT12:00:00". For FLIGHTS return null if not shown.
 - confirmation_code: booking reference, confirmation number, or ticket number
 - price: numeric amount only (e.g. 299.99)
 - currency: 3-letter currency code (e.g. USD, EUR, GBP)
 - notes: any other useful info like seat numbers, special instructions, or booking details
 
-IMPORTANT FOR HOTELS:
-- start_time = check-in DATE (ignore the check-in time like 3:00 PM)
-- end_time = check-out DATE (ignore the check-out time like 11:00 AM)
-- Example: if check-in is July 22 and check-out is July 25, use "2026-07-22T12:00:00" and "2026-07-25T12:00:00"
-- This ensures the hotel spans the correct days on the calendar
-
-IMPORTANT FOR DATES: Always use future dates. If a year is ambiguous, use the next upcoming year from today. Never extract a date in the past unless explicitly stated.
+CRITICAL DATE RULES:
+- Today is ${today}
+- NEVER return a date in the past
+- If you see a month and day but no year, use the next future occurrence of that date
+- If no date is visible at all, return null for start_time and end_time — do NOT guess
+- For hotels: start_time = check-in DATE, end_time = check-out DATE (ignore check-in/out times)
+- Example: if today is 2026-03-28 and you see "July 17" with no year, use "2026-07-17"
 
 Return ONLY the JSON object. No explanation, no markdown, no backticks.`,
             },
@@ -89,13 +89,13 @@ Return ONLY the JSON object. No explanation, no markdown, no backticks.`,
     const cleaned = text.replace(/```json|```/g, '').trim()
     const data = JSON.parse(cleaned)
 
-    // Auto-correct past dates to next upcoming year
-    const now = new Date()
+    // Auto-correct any past dates to next year as a safety net
+    const nowDate = new Date()
     function correctYear(dateStr: string | undefined): string | undefined {
       if (!dateStr) return dateStr
       const d = new Date(dateStr)
       if (isNaN(d.getTime())) return dateStr
-      if (d < now) {
+      if (d < nowDate) {
         d.setFullYear(d.getFullYear() + 1)
         return d.toISOString().slice(0, 19)
       }
