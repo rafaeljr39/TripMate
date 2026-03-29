@@ -1,10 +1,43 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
 const client = new Anthropic()
 
+// Simple in-memory rate limiter — resets on server restart
+const rateLimitMap = new Map<string, { count: number, resetAt: number }>()
+const MAX_REQUESTS = 20 // per user per day
+const WINDOW_MS = 24 * 60 * 60 * 1000 // 24 hours
+
 export async function POST(request: Request) {
   try {
+    // Auth check
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limiting
+    const now = Date.now()
+    const userLimit = rateLimitMap.get(user.id)
+
+    if (userLimit) {
+      if (now < userLimit.resetAt) {
+        if (userLimit.count >= MAX_REQUESTS) {
+          return NextResponse.json(
+            { error: `Daily limit of ${MAX_REQUESTS} extractions reached. Try again tomorrow.` },
+            { status: 429 }
+          )
+        }
+        userLimit.count++
+      } else {
+        rateLimitMap.set(user.id, { count: 1, resetAt: now + WINDOW_MS })
+      }
+    } else {
+      rateLimitMap.set(user.id, { count: 1, resetAt: now + WINDOW_MS })
+    }
+
     const { base64, mediaType } = await request.json()
 
     const response = await client.messages.create({
@@ -37,7 +70,7 @@ Extract all available details and return ONLY a JSON object with these fields:
 - currency: 3-letter currency code (e.g. USD, EUR, GBP)
 - notes: any other useful info like seat numbers, special instructions, or booking details
 
-IMPORTANT FOR HOTELS: 
+IMPORTANT FOR HOTELS:
 - start_time = check-in DATE (ignore the check-in time like 3:00 PM)
 - end_time = check-out DATE (ignore the check-out time like 11:00 AM)
 - Example: if check-in is July 22 and check-out is July 25, use "2026-07-22T12:00:00" and "2026-07-25T12:00:00"
