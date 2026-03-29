@@ -75,8 +75,9 @@ export default function TripDetailClient({
   inviteUrl: string, tripId: string
 }) {
   const [activeTab, setActiveTab] = useState<'calendar' | 'bookings'>('calendar')
-  const [bookingsView, setBookingsView] = useState<'list' | 'timeline'>('list')
+  const [bookingTypeFilter, setBookingTypeFilter] = useState<string>('all')
   const [copied, setCopied] = useState(false)
+  const [expandedBudgetType, setExpandedBudgetType] = useState<string | null>(null)
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
   const [displayCurrency, setDisplayCurrency] = useState<string>(trip.budget_currency ?? 'USD')
   const [rates, setRates] = useState<Record<string, number>>({})
@@ -505,22 +506,29 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
 
             {/* BOOKINGS TAB */}
             {activeTab === 'bookings' && (
-              <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '20px', overflow: 'hidden' }}>
-<div className="bookings-header">                  <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink)' }}>All Bookings</p>
-                  <div style={{ display: 'flex', gap: '3px', background: 'var(--sand-dark)', borderRadius: '9px', padding: '3px' }}>
-                    {(['list', 'timeline'] as const).map(v => (
-                      <button key={v} onClick={() => setBookingsView(v)} style={{
-                        fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: '0.75rem',
-                        padding: '5px 14px', borderRadius: '7px', border: 'none', cursor: 'pointer', transition: 'all .2s',
-                        background: bookingsView === v ? 'var(--white)' : 'transparent',
-                        color: bookingsView === v ? 'var(--ink)' : 'var(--ink-soft)',
-                      }}>
-                        {v === 'list' ? 'List' : 'Timeline'}
-                      </button>
-                    ))}
+              <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '20px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                {/* Header + filter pills */}
+                <div style={{ padding: '14px 18px 12px', borderBottom: '1px solid var(--sand-dark)' }}>
+                  <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink)', marginBottom: '10px' }}>All Bookings</p>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {(['all', 'flight', 'hotel', 'activity', 'transport'] as const).map(type => {
+                      const labels: Record<string, string> = { all: 'All', flight: '✈️ Flight', hotel: '🏨 Hotel', activity: '🎟 Activity', transport: '🚌 Transport' }
+                      const isActive = bookingTypeFilter === type
+                      return (
+                        <button key={type} onClick={() => setBookingTypeFilter(type)} style={{
+                          fontSize: '0.72rem', fontWeight: 500, padding: '4px 12px', borderRadius: '999px',
+                          border: '1px solid var(--sand-dark)', cursor: 'pointer', transition: 'all .15s',
+                          background: isActive ? 'var(--ink)' : 'var(--sand)',
+                          color: isActive ? 'var(--sand)' : 'var(--ink-muted)',
+                        }}>
+                          {labels[type]}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
+                {/* Bookings list */}
                 {activities.length === 0 ? (
                   <div style={{ padding: '48px 32px', textAlign: 'center' }}>
                     <p style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🗺️</p>
@@ -530,41 +538,35 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                       📸 Scan confirmation
                     </Link>
                   </div>
-                ) : bookingsView === 'list' ? (
-                  <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {activities.map(a => <ActivityCard key={a.id} activity={a} tripId={tripId} />)}
-                  </div>
-                ) : (
-                  <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    {sortedDays.map(day => (
-                      <div key={day}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-                          <div style={{ height: '1px', flex: 1, background: 'var(--sand-dark)' }} />
-                          <p style={{ color: 'var(--ink-muted)', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>{formatDayHeader(day)}</p>
-                          <div style={{ height: '1px', flex: 1, background: 'var(--sand-dark)' }} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                          {grouped[day].map(a => <ActivityCard key={a.id} activity={a} tripId={tripId} showTime />)}
+                ) : (() => {
+                  const filtered = bookingTypeFilter === 'all' ? activities : activities.filter(a => a.type === bookingTypeFilter)
+                  const filteredTotal = filtered.reduce((sum, a) => sum + (a.price ? convertToDisplay(a.price, a.currency ?? 'USD') : 0), 0)
+                  const TYPE_LABELS: Record<string, string> = { flight: '✈️ flights', hotel: '🏨 hotels', activity: '🎟 activities', transport: '🚌 transport' }
+                  return (
+                    <>
+                      <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {filtered.length === 0 ? (
+                          <p style={{ fontSize: '0.82rem', color: 'var(--ink-muted)', textAlign: 'center', padding: '24px 0' }}>No {bookingTypeFilter} bookings yet</p>
+                        ) : filtered.map(a => <ActivityCard key={a.id} activity={a} tripId={tripId} />)}
+                      </div>
+                      {/* Totals bar */}
+                      <div style={{ padding: '12px 18px', borderTop: '1px solid var(--sand-dark)', background: 'var(--sand)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
+                          {filtered.length} booking{filtered.length !== 1 ? 's' : ''}
+                          {bookingTypeFilter !== 'all' && <span style={{ opacity: 0.6 }}> · {formatBudget(totalSpentConverted, trip.budget_currency ?? 'USD')} total</span>}
+                        </span>
+                        <div style={{ textAlign: 'right' }}>
+                          <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1rem', color: 'var(--ink)' }}>{formatBudget(filteredTotal, trip.budget_currency ?? 'USD')}</p>
+                          <p style={{ fontSize: '0.68rem', color: 'var(--ink-muted)', marginTop: '1px' }}>
+                            {bookingTypeFilter === 'all' ? `of ${formatBudget(trip.budget, trip.budget_currency ?? 'USD')} budget` : TYPE_LABELS[bookingTypeFilter] ?? bookingTypeFilter}
+                          </p>
                         </div>
                       </div>
-                    ))}
-                    {noDate.length > 0 && (
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-                          <div style={{ height: '1px', flex: 1, background: 'var(--sand-dark)' }} />
-                          <p style={{ color: 'var(--ink-muted)', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>No date set</p>
-                          <div style={{ height: '1px', flex: 1, background: 'var(--sand-dark)' }} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                          {noDate.map(a => <ActivityCard key={a.id} activity={a} tripId={tripId} />)}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                    </>
+                  )
+                })()}
               </div>
             )}
-          </div>
 
           {/* RIGHT SIDEBAR */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -611,11 +613,16 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                 <div style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {Object.entries(budgetByType).length === 0 ? (
                     <p style={{ fontSize: '0.78rem', color: 'var(--ink-muted)', textAlign: 'center', padding: '8px 0' }}>No spending tracked yet</p>
-                  ) : Object.entries(budgetByType).map(([type, amount]) => {
+                 ) : Object.entries(budgetByType).map(([type, amount]) => {
                     const pct = trip.budget ? Math.min((amount / trip.budget) * 100, 100) : 0
                     const color = TYPE_COLORS[type] ?? 'var(--ink-muted)'
+                    const isActive = bookingTypeFilter === type && activeTab === 'bookings'
                     return (
-                      <div key={type}>
+                      <div key={type} onClick={() => { setBookingTypeFilter(type); setActiveTab('bookings') }}
+                        style={{ cursor: 'pointer', borderRadius: '8px', padding: '4px', margin: '-4px', transition: 'background .15s', background: isActive ? 'var(--sand)' : 'transparent' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'var(--sand)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = isActive ? 'var(--sand)' : 'transparent')}
+                      >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', marginBottom: '4px' }}>
                           <span style={{ color: 'var(--ink-muted)' }}>{TYPE_ICONS[type]} {type}</span>
                           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: 'var(--ink)' }}>{formatBudget(amount, trip.budget_currency)}</span>
@@ -623,12 +630,10 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                         <div style={{ height: '4px', background: 'var(--sand-dark)', borderRadius: '99px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', borderRadius: '99px', background: color, width: `${pct}%` }} />
                         </div>
+                        <p style={{ fontSize: '0.65rem', color: 'var(--terracotta)', marginTop: '3px', opacity: isActive ? 1 : 0, transition: 'opacity .15s' }}>View in bookings →</p>
                       </div>
                     )
                   })}
-                </div>
-              </div>
-            )}
 
             {/* Invite Travel Buddy */}
             <div style={{ background: 'var(--card)', border: '1px solid var(--sand-dark)', borderRadius: '18px', overflow: 'hidden' }}>
