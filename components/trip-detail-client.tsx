@@ -1,6 +1,5 @@
 'use client'
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 const TYPE_ICONS: Record<string, string> = {
@@ -79,6 +78,37 @@ export default function TripDetailClient({
   const [bookingsView, setBookingsView] = useState<'list' | 'timeline'>('list')
   const [copied, setCopied] = useState(false)
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
+  const [displayCurrency, setDisplayCurrency] = useState<string>(trip.budget_currency ?? 'USD')
+  const [rates, setRates] = useState<Record<string, number>>({})
+  const [ratesLoading, setRatesLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchRates() {
+      try {
+        const res = await fetch(`https://open.er-api.com/v6/latest/USD`)
+        const data = await res.json()
+        if (data.rates) setRates(data.rates)
+      } catch (e) {
+        console.error('Failed to fetch rates', e)
+      } finally {
+        setRatesLoading(false)
+      }
+    }
+    fetchRates()
+  }, [])
+
+  function convertToDisplay(amount: number, fromCurrency: string): number {
+    if (!amount) return 0
+    if (fromCurrency === displayCurrency) return amount
+    if (!rates[fromCurrency] || !rates[displayCurrency]) return amount
+    const inUSD = amount / rates[fromCurrency]
+    return inUSD * rates[displayCurrency]
+  }
+
+  function formatConverted(amount: number, fromCurrency: string): string {
+    const converted = convertToDisplay(amount, fromCurrency)
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: displayCurrency }).format(converted)
+  }
 
   const tripStartDate = trip.start_date ? new Date(trip.start_date) : new Date()
   const [calMonth, setCalMonth] = useState(tripStartDate.getMonth())
@@ -108,9 +138,16 @@ export default function TripDetailClient({
 
   const budgetByType: Record<string, number> = {}
   activities.forEach(a => {
-    if (a.price) budgetByType[a.type] = (budgetByType[a.type] ?? 0) + a.price
+    if (a.price) {
+      const converted = convertToDisplay(a.price, a.currency ?? 'USD')
+      budgetByType[a.type] = (budgetByType[a.type] ?? 0) + converted
+    }
   })
   const confirmedCount = activities.filter(a => a.confirmation_code).length
+  const totalSpentConverted = activities.reduce((sum, a) => {
+    if (!a.price) return sum
+    return sum + convertToDisplay(a.price, a.currency ?? 'USD')
+  }, 0)
 
   const selectedDayActivities = selectedDay
     ? activities.filter(a => a.start_time && a.start_time.slice(0, 10) === selectedDay)
@@ -183,6 +220,22 @@ export default function TripDetailClient({
             📍 {trip.destination}
             {trip.start_date && trip.end_date && <span style={{ marginLeft: '10px' }}>{formatDate(trip.start_date)} → {formatDate(trip.end_date)}</span>}
           </p>
+          {/* Currency toggle */}
+<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+  <span style={{ fontSize: '0.75rem', color: 'var(--ink-muted)' }}>Display in:</span>
+  <div style={{ display: 'flex', gap: '3px', background: 'var(--sand-dark)', borderRadius: '8px', padding: '2px' }}>
+    {['USD', 'EUR', 'GBP'].map(c => (
+      <button key={c} onClick={() => setDisplayCurrency(c)} style={{
+        fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: '0.72rem',
+        padding: '4px 10px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+        background: displayCurrency === c ? 'var(--white)' : 'transparent',
+        color: displayCurrency === c ? 'var(--ink)' : 'var(--ink-soft)',
+        transition: 'all .2s',
+      }}>{c}</button>
+    ))}
+  </div>
+  {ratesLoading && <span style={{ fontSize: '0.7rem', color: 'var(--ink-muted)' }}>Loading rates...</span>}
+</div>
         </div>
 
         {/* STAT BAR */}
@@ -195,11 +248,11 @@ export default function TripDetailClient({
             {trip.budget && (
               <>
                 <div style={{ height: '4px', background: 'rgba(245,239,224,0.2)', borderRadius: '99px', overflow: 'hidden', marginTop: '8px' }}>
-                  <div style={{ height: '100%', borderRadius: '99px', background: 'linear-gradient(90deg, var(--gold-light), var(--terra-light))', width: `${Math.min((totalSpent / trip.budget) * 100, 100)}%` }} />
+                  <div style={{ height: '100%', borderRadius: '99px', background: 'linear-gradient(90deg, var(--gold-light), var(--terra-light))', width: `${Math.min((totalSpentConverted / trip.budget) * 100, 100)}%`
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', marginTop: '4px', opacity: 0.55 }}>
-                  <span>{formatBudget(totalSpent, trip.budget_currency)} booked</span>
-                  <span>{formatBudget(trip.budget - totalSpent, trip.budget_currency)} left</span>
+                 {ratesLoading ? '...' : formatBudget(totalSpentConverted, displayCurrency)} booked
+                 {ratesLoading ? '...' : formatBudget(trip.budget - totalSpentConverted, displayCurrency)} left
                 </div>
               </>
             )}
