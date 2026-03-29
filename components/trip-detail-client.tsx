@@ -334,7 +334,7 @@ export default function TripDetailClient({
                     {cells.map((day, i) => {
                       if (!day) return <div key={'e-' + i} />
                       const dateStr = toDateStr(calYear, calMonth, day)
-                      const inTrip = trip.start_date && trip.end_date && dateStr >= trip.start_date && dateStr <= trip.end_date
+                      const inTrip = trip.start_date && (trip.end_date ? dateStr >= trip.start_date && dateStr <= trip.end_date : dateStr >= trip.start_date)
                       const hasHotel = hotels.some(h => isBetween(dateStr, h.start_time, h.end_time))
                       const hasFlight = flights.some(f => isSameDay(f.start_time, dateStr))
                       const isGap = inTrip && !hasHotel && !hasFlight
