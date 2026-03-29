@@ -244,7 +244,7 @@ export default function TripDetailClient({
           <div style={{ background: 'var(--ink)', color: 'var(--sand)', borderRadius: '13px', padding: '13px 16px', flex: '1.6' }}>
             <p style={{ fontSize: '0.62rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.55, marginBottom: '4px' }}>My Trip Budget</p>
             <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.5rem', letterSpacing: '-0.04em', lineHeight: 1 }}>
-              {trip.budget ? formatBudget(trip.budget, trip.budget_currency) : '—'}
+              {trip.budget ? formatBudget(convertToDisplay(trip.budget, trip.budget_currency ?? 'USD'), displayCurrency) : '—'}
             </p>
             {trip.budget && (
               <>
