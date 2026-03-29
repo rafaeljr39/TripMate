@@ -26,7 +26,14 @@ export default function CreateTripPage() {
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+    const { name, value } = e.target
+    setForm(prev => {
+      const updated = { ...prev, [name]: value }
+      if (name === 'start_date' && value && (!prev.end_date || prev.end_date < value)) {
+        updated.end_date = value
+      }
+      return updated
+    })
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -245,6 +252,7 @@ export default function CreateTripPage() {
                 type="date"
                 name="end_date"
                 value={form.end_date}
+                min={form.start_date || undefined}
                 onChange={handleChange}
                 style={{
                   width: '100%',
