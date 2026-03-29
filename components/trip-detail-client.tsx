@@ -553,7 +553,6 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                       <div style={{ padding: '12px 18px', borderTop: '1px solid var(--sand-dark)', background: 'var(--sand)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
                           {filtered.length} booking{filtered.length !== 1 ? 's' : ''}
-                          {bookingTypeFilter !== 'all' && <span style={{ opacity: 0.6 }}> · {formatBudget(totalSpentConverted, trip.budget_currency ?? 'USD')} total</span>}
                         </span>
                         <div style={{ textAlign: 'right' }}>
                           <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1rem', color: 'var(--ink)' }}>{formatBudget(filteredTotal, trip.budget_currency ?? 'USD')}</p>
@@ -567,7 +566,9 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                 })()}
               </div>
             )}
-</div>
+
+          </div>
+
           {/* RIGHT SIDEBAR */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
