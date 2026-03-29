@@ -293,12 +293,23 @@ export default function TripDetailClient({
                       let bg = 'transparent', color = 'var(--ink)', border = 'none'
                       const opacity = inTrip ? 1 : 0.3
 
-                      if (isSelected) { bg = 'var(--terracotta)'; color = 'white'; border = 'none' }
-                      else if (hasHotel && hasFlight) { bg = 'var(--sage)'; color = 'white' }
-                      else if (hasHotel) { bg = 'var(--sage)'; color = 'white' }
-                      else if (hasFlight) { bg = 'var(--sky)'; color = 'white' }
-                      else if (isGap) { border = '1.5px dashed var(--terra-light)'; color = 'var(--terracotta)'; bg = 'rgba(196,85,42,0.07)' }
-                      else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
+                      const hasTransport = activities.some(a =>
+  a.start_time?.slice(0, 10) === dateStr &&
+  ['flight', 'transport'].includes(a.type)
+)
+const hasActivities = activities.some(a =>
+  a.start_time?.slice(0, 10) === dateStr &&
+  !['hotel', 'flight', 'transport'].includes(a.type)
+)
+
+if (isSelected) { bg = 'var(--terracotta)'; color = 'white'; border = 'none' }
+else if (hasHotel && hasTransport) { bg = 'linear-gradient(135deg, var(--sage) 50%, var(--sky) 50%)'; color = 'white' }
+else if (hasHotel && hasActivities) { bg = 'linear-gradient(135deg, var(--sage) 50%, var(--gold) 50%)'; color = 'white' }
+else if (hasHotel) { bg = 'var(--sage)'; color = 'white' }
+else if (hasTransport) { bg = 'var(--sky)'; color = 'white' }
+else if (hasActivities && inTrip) { bg = 'var(--gold)'; color = 'white' }
+else if (isGap) { border = '1.5px dashed var(--terra-light)'; color = 'var(--terracotta)'; bg = 'rgba(196,85,42,0.07)' }
+else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
 
                       return (
                         <div
@@ -330,19 +341,23 @@ export default function TripDetailClient({
 
                 {/* Legend */}
                 <div style={{ padding: '10px 20px', borderTop: '1px solid var(--sand-dark)', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '3px', background: 'var(--sky)' }} />
-                    <span style={{ fontSize: '0.68rem', fontWeight: 500, color: 'var(--ink-muted)' }}>Flight</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '3px', background: 'var(--sage)' }} />
-                    <span style={{ fontSize: '0.68rem', fontWeight: 500, color: 'var(--ink-muted)' }}>Hotel</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '3px', background: 'rgba(196,85,42,0.2)', border: '1.5px dashed var(--terracotta)' }} />
-                    <span style={{ fontSize: '0.68rem', fontWeight: 500, color: 'var(--ink-muted)' }}>No accommodation</span>
-                  </div>
-                </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <div style={{ width: '8px', height: '8px', borderRadius: '3px', background: 'var(--sky)' }} />
+    <span style={{ fontSize: '0.68rem', fontWeight: 500, color: 'var(--ink-muted)' }}>Flight / Transport</span>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <div style={{ width: '8px', height: '8px', borderRadius: '3px', background: 'var(--sage)' }} />
+    <span style={{ fontSize: '0.68rem', fontWeight: 500, color: 'var(--ink-muted)' }}>Hotel</span>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <div style={{ width: '8px', height: '8px', borderRadius: '3px', background: 'var(--gold)' }} />
+    <span style={{ fontSize: '0.68rem', fontWeight: 500, color: 'var(--ink-muted)' }}>Activities</span>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <div style={{ width: '8px', height: '8px', borderRadius: '3px', background: 'rgba(196,85,42,0.2)', border: '1.5px dashed var(--terracotta)' }} />
+    <span style={{ fontSize: '0.68rem', fontWeight: 500, color: 'var(--ink-muted)' }}>No accommodation</span>
+  </div>
+</div>
 
                 {/* Gap alert */}
                 {gapDays.length > 0 && (
