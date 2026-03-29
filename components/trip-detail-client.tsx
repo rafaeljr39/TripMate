@@ -248,11 +248,11 @@ export default function TripDetailClient({
             {trip.budget && (
               <>
                 <div style={{ height: '4px', background: 'rgba(245,239,224,0.2)', borderRadius: '99px', overflow: 'hidden', marginTop: '8px' }}>
-                  <div style={{ height: '100%', borderRadius: '99px', background: 'linear-gradient(90deg, var(--gold-light), var(--terra-light))', width: `${Math.min((totalSpentConverted / trip.budget) * 100, 100)}%`
+                  <div style={{ height: '100%', borderRadius: '99px', background: 'linear-gradient(90deg, var(--gold-light), var(--terra-light))', width: `${Math.min((totalSpentConverted / trip.budget) * 100, 100)}%` }} />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', marginTop: '4px', opacity: 0.55 }}>
-                 {ratesLoading ? '...' : formatBudget(totalSpentConverted, displayCurrency)} booked
-                 {ratesLoading ? '...' : formatBudget(trip.budget - totalSpentConverted, displayCurrency)} left
+                 <span>{ratesLoading ? '...' : formatBudget(totalSpentConverted, displayCurrency)} booked</span>
+                  <span>{ratesLoading ? '...' : formatBudget(trip.budget - totalSpentConverted, displayCurrency)} left</span>
                 </div>
               </>
             )}
