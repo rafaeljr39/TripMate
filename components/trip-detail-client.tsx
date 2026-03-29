@@ -465,7 +465,7 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                                 </div>
                                 {a.price && (
                                   <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.85rem', color: 'var(--terracotta)', flexShrink: 0 }}>
-                                    {formatBudget(a.price, a.currency ?? 'USD')}
+                                    {formatConverted(a.price, a.currency ?? 'USD')}
                                   </p>
                                 )}
                               </div>
@@ -495,7 +495,7 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                       <div style={{ margin: '0 18px 16px', padding: '11px 15px', background: 'var(--ink)', color: 'var(--sand)', borderRadius: '11px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: '0.74rem', opacity: 0.55 }}>Day total</span>
                         <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.05rem' }}>
-                          {formatBudget(selectedDayTotal, trip.budget_currency ?? 'USD')}
+                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: displayCurrency }).format(selectedDayTotal)}
                         </span>
                       </div>
                     )}
@@ -547,7 +547,7 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                       <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {filtered.length === 0 ? (
                           <p style={{ fontSize: '0.82rem', color: 'var(--ink-muted)', textAlign: 'center', padding: '24px 0' }}>No {bookingTypeFilter} bookings yet</p>
-                        ) : filtered.map(a => <ActivityCard key={a.id} activity={a} tripId={tripId} />)}
+                        ) : filtered.map(a => <ActivityCard key={a.id} activity={a} tripId={tripId} displayCurrency={displayCurrency} convertToDisplay={convertToDisplay} />)
                       </div>
                       {/* Totals bar */}
                       <div style={{ padding: '12px 18px', borderTop: '1px solid var(--sand-dark)', background: 'var(--sand)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -555,9 +555,9 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                           {filtered.length} booking{filtered.length !== 1 ? 's' : ''}
                         </span>
                         <div style={{ textAlign: 'right' }}>
-                          <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1rem', color: 'var(--ink)' }}>{formatBudget(filteredTotal, trip.budget_currency ?? 'USD')}</p>
+                          <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1rem', color: 'var(--ink)' }}>{formatBudget(filteredTotal, displayCurrency)}</p>
                           <p style={{ fontSize: '0.68rem', color: 'var(--ink-muted)', marginTop: '1px' }}>
-                            {bookingTypeFilter === 'all' ? `of ${formatBudget(trip.budget, trip.budget_currency ?? 'USD')} budget` : TYPE_LABELS[bookingTypeFilter] ?? bookingTypeFilter}
+                            {bookingTypeFilter === 'all' ? `of ${formatBudget(trip.budget, displayCurrency)} budget` : TYPE_LABELS[bookingTypeFilter] ?? bookingTypeFilter}
                           </p>
                         </div>
                       </div>
@@ -626,7 +626,7 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', marginBottom: '4px' }}>
                           <span style={{ color: 'var(--ink-muted)' }}>{TYPE_ICONS[type]} {type}</span>
-                          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: 'var(--ink)' }}>{formatBudget(amount, trip.budget_currency)}</span>
+                          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: 'var(--ink)' }}>{formatBudget(amount, displayCurrency)}</span>
                         </div>
                         <div style={{ height: '4px', background: 'var(--sand-dark)', borderRadius: '99px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', borderRadius: '99px', background: color, width: `${pct}%` }} />
@@ -680,11 +680,13 @@ else if (isStart || isEnd) { bg = 'var(--ink)'; color = 'var(--sand)' }
   )
 }
 
-function ActivityCard({ activity, tripId, showTime }: { activity: any, tripId: string, showTime?: boolean }) {
+function ActivityCard({ activity, tripId, showTime, displayCurrency, convertToDisplay }: { activity: any, tripId: string, showTime?: boolean, displayCurrency?: string, convertToDisplay?: (amount: number, from: string) => number }) {
   const icon = TYPE_ICONS[activity.type] ?? '📌'
   const iconBg = TYPE_BG[activity.type] ?? 'rgba(26,23,20,0.05)'
   const price = activity.price
-    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: activity.currency ?? 'USD' }).format(activity.price)
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: displayCurrency ?? activity.currency ?? 'USD' }).format(
+        convertToDisplay ? convertToDisplay(activity.price, activity.currency ?? 'USD') : activity.price
+      )
     : null
 
   return (
