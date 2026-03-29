@@ -88,6 +88,23 @@ Return ONLY the JSON object. No explanation, no markdown, no backticks.`,
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
     const cleaned = text.replace(/```json|```/g, '').trim()
     const data = JSON.parse(cleaned)
+
+    // Auto-correct past dates to next upcoming year
+    const now = new Date()
+    function correctYear(dateStr: string | undefined): string | undefined {
+      if (!dateStr) return dateStr
+      const d = new Date(dateStr)
+      if (isNaN(d.getTime())) return dateStr
+      if (d < now) {
+        d.setFullYear(d.getFullYear() + 1)
+        return d.toISOString().slice(0, 19)
+      }
+      return dateStr
+    }
+
+    if (data.start_time) data.start_time = correctYear(data.start_time)
+    if (data.end_time) data.end_time = correctYear(data.end_time)
+
     return NextResponse.json(data)
 
   } catch (err: any) {
